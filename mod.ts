@@ -1,16 +1,16 @@
 #!/usr/bin/env -S deno run --allow-net
 const { args } = Deno;
-import { parse } from "https://deno.land/std/flags/mod.ts";
+import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import {
   listenAndServe,
   ServerRequest,
 } from "https://deno.land/std/http/server.ts";
 
-import { isRoute, contentType } from "./utils.ts";
+import { isRoute, contentType, isValidArg, printHelp } from "./utils.ts";
 
 /* Parse CLI args */
 const parsedArgs = parse(args);
-const root = parsedArgs._ ? parsedArgs._[0] : ".";
+const root = parsedArgs._ ? String(parsedArgs._[0]) : ".";
 
 const handleRequest = async (req: ServerRequest) => {
   const path = root + req.url;
@@ -45,13 +45,18 @@ const handleError = async (
   });
 };
 
+const watchFiles = async () => {
+  const watcher = Deno.watchFs(root, { recursive: true });
+  for await (const event of watcher) {
+  }
+};
+
 const router = async (req: ServerRequest): Promise<void> => {
   try {
     console.log(req.method, req.url);
     const path = root + req.url;
 
     if (isRoute(path)) {
-      console.log("IS ROUTE");
       return handleRouteRequest(req);
     }
 
@@ -65,11 +70,22 @@ const router = async (req: ServerRequest): Promise<void> => {
   }
 };
 
-const main = async () => {
+const main = async (args: Args) => {
+  Object.keys(args).map((arg: string) => {
+    if (!isValidArg(arg)) {
+      console.log(`"${arg}" is not a known flag.`);
+      printHelp();
+      Deno.exit();
+    }
+  });
+
   listenAndServe({ port: 8080 }, router);
   console.log("Serving on localhost:8080");
+  if (args.r) {
+    watchFiles();
+  }
 };
 
 if (import.meta.main) {
-  main();
+  main(parsedArgs);
 }
