@@ -1,0 +1,1 @@
+cli: deno run mod.ts
