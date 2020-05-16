@@ -14,7 +14,7 @@ import {
   printHelp,
   readFile,
   isWebSocket,
-  injectReloadScript,
+  appendReloadScript,
   printStart,
   printRequest,
   printError,
@@ -58,7 +58,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: reload ? injectReloadScript(file, port) : file,
+    body: reload ? appendReloadScript(file, port) : file,
   });
 };
 

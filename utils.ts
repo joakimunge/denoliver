@@ -38,7 +38,7 @@ export const readFile = async (filename: string) => {
 export const isWebSocket = (req: ServerRequest): boolean =>
   req.headers.get("upgrade") === "websocket";
 
-export const injectReloadScript = (
+export const appendReloadScript = (
   file: string,
   port: number,
 ): string => {
