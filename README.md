@@ -10,6 +10,12 @@ _**This project can not be run on Node.js**_
 
 Read about Deno and get it here: [Deno](https://deno.land/)
 
+## Key Features
+
+- Dependency free! No third party dependencies. Only Deno Std Lib
+- Live reload of modified files.
+- Supports client side routing
+
 ## Getting started
 
 ### Install Denoliver as an executable
