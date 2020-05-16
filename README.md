@@ -27,13 +27,13 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 Install as a Deno executable
 
 ```
-$ deno install --allow-net --allow-read mod.ts
+$ deno install --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
 ```
 
 or if you're not happy with the name:
 
 ```
-$ deno install -n whateverNameYouWant --allow-net --allow-read mod.ts
+$ deno install -n whateverNameYouWant --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
 ```
 
 ### Running
