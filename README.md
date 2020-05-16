@@ -1,6 +1,10 @@
-# <img src="media/denoliver.png" title="Denoliver" alt="It's a liver" width="530">
+<p align="center">
+  <img src="media/denoliver.png" title="Denoliver" alt="It's a liver" width="530">
+</p>
 
-Denoliver is a small, simple, no config static file server with live reloading written in TypeScript for Deno intended for prototyping and quick projects.
+---
+
+__Denoliver__ is a small, simple, no config static file server with live reloading written in TypeScript for Deno intended for prototyping and quick projects.
 
 _**This project can not be run on Node.js**_
 
