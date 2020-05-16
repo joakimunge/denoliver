@@ -53,8 +53,21 @@ export const injectReloadScript = (
 </script>`;
 };
 
-/* Print utils */
+export const inject404 = (filename: string) =>
+  `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <title>404 - Not Found</title>
+  </head>
+  <body>
+    ${filename} does not exist on the server.
+  </body>
+</html>
+`;
 
+/* Print utils */
 export const printRequest = (req: ServerRequest): void => {
   console.log(`${bold(green(req.method))} ${req.url}`);
 };

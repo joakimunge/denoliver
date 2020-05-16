@@ -20,6 +20,7 @@ import {
   printError,
   printArgError,
   isValidPort,
+  inject404,
 } from "./utils.ts";
 
 /* Initialize file watcher */
@@ -27,7 +28,7 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 
 /* Parse CLI args */
 const parsedArgs = parse(args);
-const root = parsedArgs._ ? String(parsedArgs._[0]) : ".";
+const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
 const debug = parsedArgs.d;
 const silent = parsedArgs.s;
 const reload = parsedArgs.n ? false : true;
@@ -46,6 +47,7 @@ const handleFileRequest = async (req: ServerRequest) => {
     });
   } catch (error) {
     !silent && printError(error, debug);
+    handleNotFound(req);
   }
 };
 
@@ -80,14 +82,12 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
 };
 
-const handleError = async (
+const handleNotFound = async (
   req: ServerRequest,
-  status = 404,
-  body = "Not Found",
 ): Promise<void> => {
   return req.respond({
-    status,
-    body,
+    status: 404,
+    body: inject404(req.url),
   });
 };
 
@@ -109,7 +109,6 @@ const router = async (req: ServerRequest): Promise<void> => {
     return handleFileRequest(req);
   } catch (error) {
     !silent && printError(error, debug);
-    handleError(req);
   }
 };
 
