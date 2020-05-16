@@ -1,10 +1,11 @@
+export default (resource: string) =>
+  `
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <title>Denoliver</title>
-    <link rel="stylesheet" href="./style.css" />
+    <title>404</title>
   </head>
   <style>
     html,
@@ -62,8 +63,8 @@
   </style>
   <body>
     <div id="denoliver">
-      <h1>Denoliver</h1>
-      <p>A simple, dependency free web server for Deno.</p>
+      <h1>404</h1>
+      <p>Requested resource: ${resource} does not exist.</p>
       <div>
         <span></span>
         <span></span>
@@ -72,3 +73,5 @@
     </div>
   </body>
 </html>
+
+`;

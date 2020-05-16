@@ -7,6 +7,7 @@ import {
   red,
 } from "https://deno.land/std/fmt/colors.ts";
 import mimes from "./mimes.ts";
+import notFound from "./404.ts";
 
 /* CLI Utils */
 
@@ -53,19 +54,7 @@ export const appendReloadScript = (
 </script>`;
 };
 
-export const inject404 = (filename: string) =>
-  `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta charset="utf-8" />
-    <title>404 - Not Found</title>
-  </head>
-  <body>
-    ${filename} does not exist on the server.
-  </body>
-</html>
-`;
+export const inject404 = (filename: string) => notFound(filename);
 
 /* Print utils */
 export const printRequest = (req: ServerRequest): void => {
