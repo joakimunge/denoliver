@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { isRoute, contentType } from "./utils.ts";
+import { isRoute, contentType, isValidPort } from "./utils.ts";
 /* Utils */
 
 Deno.test("isRoute", () => {
@@ -30,4 +30,24 @@ Deno.test("contentType", () => {
 Deno.test("contentType", () => {
   const type = contentType("/path/to/app.exe");
   assertEquals(type, "application/octet-stream");
+});
+
+Deno.test("isValidPort", () => {
+  const valid = isValidPort("Not a port");
+  assertEquals(valid, false);
+});
+
+Deno.test("isValidPort", () => {
+  const valid = isValidPort(123456789);
+  assertEquals(valid, false);
+});
+
+Deno.test("isValidPort", () => {
+  const valid = isValidPort(8081);
+  assertEquals(valid, true);
+});
+
+Deno.test("isValidPort", () => {
+  const valid = isValidPort(false);
+  assertEquals(valid, false);
 });

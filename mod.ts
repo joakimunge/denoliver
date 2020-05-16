@@ -18,7 +18,8 @@ import {
   printStart,
   printRequest,
   printError,
-  printCliError,
+  printArgError,
+  isValidPort,
 } from "./utils.ts";
 
 /* Initialize file watcher */
@@ -29,7 +30,8 @@ const parsedArgs = parse(args);
 const root = parsedArgs._ ? String(parsedArgs._[0]) : ".";
 const debug = parsedArgs.d;
 const silent = parsedArgs.s;
-const noreload = parsedArgs.s;
+const reload = parsedArgs.n ? false : true;
+const port = parsedArgs.p ? parsedArgs.p : 8080;
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -54,7 +56,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: noreload ? file : injectReloadScript(file),
+    body: reload ? injectReloadScript(file, port) : file,
   });
 };
 
@@ -64,11 +66,13 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
   try {
     const { conn, r: bufReader, w: bufWriter, headers } = req;
-    const sock = await acceptWebSocket({ conn, bufReader, bufWriter, headers });
+    const socket = await acceptWebSocket(
+      { conn, bufReader, bufWriter, headers },
+    );
 
     for await (const event of watcher) {
       if (event.kind === "modify") {
-        await sock.send("reload");
+        await socket.send("reload");
       }
     }
   } catch (error) {
@@ -89,7 +93,7 @@ const handleError = async (
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req);
-  if (!noreload && isWebSocket(req)) {
+  if (reload && isWebSocket(req)) {
     return await handleWs(req);
   }
   try {
@@ -116,14 +120,19 @@ const main = async (args: Args) => {
       Deno.exit();
     }
     if (!isValidArg(arg)) {
-      printCliError(arg);
+      printArgError(arg, "is not a valid flag");
       printHelp();
+      Deno.exit();
+    }
+
+    if (args.p && !isValidPort(args.p)) {
+      printArgError(args.p, "is not a valid port");
       Deno.exit();
     }
   });
 
-  listenAndServe({ port: 8080 }, router);
-  printStart();
+  listenAndServe({ port }, router);
+  printStart(port);
 };
 
 if (import.meta.main) {
