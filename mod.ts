@@ -15,6 +15,10 @@ import {
   readFile,
   isWebSocket,
   injectReloadScript,
+  printStart,
+  printRequest,
+  printError,
+  printCliError,
 } from "./utils.ts";
 
 /* Initialize file watcher */
@@ -23,17 +27,24 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 /* Parse CLI args */
 const parsedArgs = parse(args);
 const root = parsedArgs._ ? String(parsedArgs._[0]) : ".";
+const debug = parsedArgs.d;
+const silent = parsedArgs.s;
+const noreload = parsedArgs.s;
 
-const handleRequest = async (req: ServerRequest) => {
-  const path = root + req.url;
-  const file = await Deno.open(path);
-  return req.respond({
-    status: 200,
-    headers: new Headers({
-      "content-type": contentType(path),
-    }),
-    body: file,
-  });
+const handleFileRequest = async (req: ServerRequest) => {
+  try {
+    const path = root + req.url;
+    const file = await Deno.open(path);
+    return req.respond({
+      status: 200,
+      headers: new Headers({
+        "content-type": contentType(path),
+      }),
+      body: file,
+    });
+  } catch (error) {
+    !silent && printError(error, debug);
+  }
 };
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
@@ -43,7 +54,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: injectReloadScript(file),
+    body: noreload ? file : injectReloadScript(file),
   });
 };
 
@@ -61,7 +72,7 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
       }
     }
   } catch (error) {
-    console.log(error);
+    !silent && printError(error, debug);
   }
 };
 
@@ -76,18 +87,12 @@ const handleError = async (
   });
 };
 
-const watchFiles = async () => {
-  const watcher = Deno.watchFs(root, { recursive: true });
-  for await (const event of watcher) {
-  }
-};
-
 const router = async (req: ServerRequest): Promise<void> => {
-  if (isWebSocket(req)) {
+  printRequest(req);
+  if (!noreload && isWebSocket(req)) {
     return await handleWs(req);
   }
   try {
-    console.log(req.method, req.url);
     const path = root + req.url;
 
     if (isRoute(path)) {
@@ -97,27 +102,28 @@ const router = async (req: ServerRequest): Promise<void> => {
     if (req.method === "GET" && req.url === "/") {
       return handleRouteRequest(req);
     }
-    return handleRequest(req);
+    return handleFileRequest(req);
   } catch (error) {
-    console.error(error);
+    !silent && printError(error, debug);
     handleError(req);
   }
 };
 
 const main = async (args: Args) => {
   Object.keys(args).map((arg: string) => {
+    if (arg === "h") {
+      printHelp();
+      Deno.exit();
+    }
     if (!isValidArg(arg)) {
-      console.log(`"${arg}" is not a known flag.`);
+      printCliError(arg);
       printHelp();
       Deno.exit();
     }
   });
 
   listenAndServe({ port: 8080 }, router);
-  console.log("Serving on localhost:8080");
-  if (args.r) {
-    watchFiles();
-  }
+  printStart();
 };
 
 if (import.meta.main) {
