@@ -51,6 +51,10 @@ Denoliver comes with a couple of options to customize your experience.
 -d       # Debug for more verbose logging - Defaults to false
 ```
 
+### Disclaimer
+
+**This project is not intended for production use. It started out as a way for me personally to learn Deno, and is merely a tool to quickly get a file server up and running.**
+
 ### Acknowledgements
 
 This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn)s fantastic [Servor](https://github.com/lukejacksonn/servor/)
