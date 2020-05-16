@@ -137,3 +137,5 @@ const main = async (args: Args) => {
 if (import.meta.main) {
   main(parsedArgs);
 }
+
+export default main;
