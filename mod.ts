@@ -2,7 +2,6 @@
 const { args } = Deno;
 import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
-
 import {
   listenAndServe,
   ServerRequest,
@@ -14,6 +13,8 @@ import {
   isValidArg,
   printHelp,
   readFile,
+  isWebSocket,
+  injectReloadScript,
 } from "./utils.ts";
 
 /* Initialize file watcher */
@@ -37,21 +38,12 @@ const handleRequest = async (req: ServerRequest) => {
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   const file = await readFile(`${root}/index.html`);
-  console.log(file);
   req.respond({
     status: 200,
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: file + `<script>
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onopen = () => {
-      console.log('Socket connection open. Listening for events.');
-    };
-    socket.onmessage = (msg) => {
-      if (msg.data === 'reload') location.reload(true);
-    };
-  </script>`,
+    body: injectReloadScript(file),
   });
 };
 
@@ -91,7 +83,9 @@ const watchFiles = async () => {
 };
 
 const router = async (req: ServerRequest): Promise<void> => {
-  await handleWs(req);
+  if (isWebSocket(req)) {
+    return await handleWs(req);
+  }
   try {
     console.log(req.method, req.url);
     const path = root + req.url;
