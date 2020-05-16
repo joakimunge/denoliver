@@ -1,6 +1,5 @@
 import { extname } from "https://deno.land/std/path/mod.ts";
 import mimes from "./mimes.ts";
-
 export const contentType = (path: string): string => {
   const ext = String(extname(path)).toLowerCase();
   return mimes[ext] || "application/octet-stream";
@@ -25,4 +24,9 @@ export const printHelp = (): void => {
   -n -- Disable live reload
   `,
   );
+};
+
+export const readFile = async (filename: string) => {
+  const decoder = new TextDecoder();
+  return decoder.decode(await Deno.readFile(filename));
 };
