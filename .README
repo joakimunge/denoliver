@@ -1,6 +1,0 @@
-# Deno Web Server
-
-```
-$ deno install --allow-net --allow-read mod.ts
-```
-
