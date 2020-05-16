@@ -14,7 +14,7 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 
 ### Install Denoliver as an executable
 
-Install as an executabled
+Install as a Deno executable
 
 ```
 $ deno install --allow-net --allow-read mod.ts
@@ -33,9 +33,28 @@ From your project root / directory you want to serve
 ```
 $ denoliver
 
+/* or */
+
+$ denoliver ./path/to/project
+
 // Serving on localhost:8080
+```
+
+### Options
+
+Denoliver comes with a couple of options to customize your experience.
+
+```
+-n       # Disable live reload - Defaults to true
+-s       # Disable all logging - Defaults to false
+-p       # Specify desired port - Defaults to 8080
+-d       # Debug for more verbose logging - Defaults to false
 ```
 
 ### Acknowledgements
 
 This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn)s fantastic [Servor](https://github.com/lukejacksonn/servor/)
+
+```
+
+```
