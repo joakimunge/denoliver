@@ -1,6 +1,6 @@
 # De(no)liver
 
-Denoliver is a small, simple static file server written for Deno intended for prototyping and quick projects.
+Denoliver is a small, simple static file server with live reloading written in TypeScript for Deno intended for prototyping and quick projects.
 
 _**This project can not be run on Node.js**_
 
@@ -17,13 +17,13 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 Install as an executabled
 
 ```
-$ deno install —allow-net —allow-read mod.ts
+$ deno install --allow-net --allow-read mod.ts
 ```
 
 or if you're not happy with the name:
 
 ```
-$ deno install -n whateverNameYouWant —allow-net —allow-read mod.ts
+$ deno install -n whateverNameYouWant --allow-net --allow-read mod.ts
 ```
 
 ### Running
@@ -38,4 +38,4 @@ $ denoliver
 
 ### Acknowledgements
 
-This project was heavily inspired by @lukejacksonn [Servor](https://github.com/lukejacksonn/servor/)
+This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn) [Servor](https://github.com/lukejacksonn/servor/)
