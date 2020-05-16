@@ -2,7 +2,6 @@
 const { args } = Deno;
 import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
-
 import {
   listenAndServe,
   ServerRequest,
@@ -14,6 +13,14 @@ import {
   isValidArg,
   printHelp,
   readFile,
+  isWebSocket,
+  appendReloadScript,
+  printStart,
+  printRequest,
+  printError,
+  printArgError,
+  isValidPort,
+  inject404,
 } from "./utils.ts";
 
 /* Initialize file watcher */
@@ -21,37 +28,37 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 
 /* Parse CLI args */
 const parsedArgs = parse(args);
-const root = parsedArgs._ ? String(parsedArgs._[0]) : ".";
+const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
+const debug = parsedArgs.d;
+const silent = parsedArgs.s;
+const reload = parsedArgs.n ? false : true;
+const port = parsedArgs.p ? parsedArgs.p : 8080;
 
-const handleRequest = async (req: ServerRequest) => {
-  const path = root + req.url;
-  const file = await Deno.open(path);
-  return req.respond({
-    status: 200,
-    headers: new Headers({
-      "content-type": contentType(path),
-    }),
-    body: file,
-  });
+const handleFileRequest = async (req: ServerRequest) => {
+  try {
+    const path = root + req.url;
+    const file = await Deno.open(path);
+    return req.respond({
+      status: 200,
+      headers: new Headers({
+        "content-type": contentType(path),
+      }),
+      body: file,
+    });
+  } catch (error) {
+    !silent && printError(error, debug);
+    handleNotFound(req);
+  }
 };
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   const file = await readFile(`${root}/index.html`);
-  console.log(file);
   req.respond({
     status: 200,
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: file + `<script>
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onopen = () => {
-      console.log('Socket connection open. Listening for events.');
-    };
-    socket.onmessage = (msg) => {
-      if (msg.data === 'reload') location.reload(true);
-    };
-  </script>`,
+    body: reload ? appendReloadScript(file, port) : file,
   });
 };
 
@@ -61,39 +68,35 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
   try {
     const { conn, r: bufReader, w: bufWriter, headers } = req;
-    const sock = await acceptWebSocket({ conn, bufReader, bufWriter, headers });
+    const socket = await acceptWebSocket(
+      { conn, bufReader, bufWriter, headers },
+    );
 
     for await (const event of watcher) {
       if (event.kind === "modify") {
-        await sock.send("reload");
+        await socket.send("reload");
       }
     }
   } catch (error) {
-    console.log(error);
+    !silent && printError(error, debug);
   }
 };
 
-const handleError = async (
+const handleNotFound = async (
   req: ServerRequest,
-  status = 404,
-  body = "Not Found",
 ): Promise<void> => {
   return req.respond({
-    status,
-    body,
+    status: 404,
+    body: inject404(req.url),
   });
 };
 
-const watchFiles = async () => {
-  const watcher = Deno.watchFs(root, { recursive: true });
-  for await (const event of watcher) {
-  }
-};
-
 const router = async (req: ServerRequest): Promise<void> => {
-  await handleWs(req);
+  printRequest(req);
+  if (reload && isWebSocket(req)) {
+    return await handleWs(req);
+  }
   try {
-    console.log(req.method, req.url);
     const path = root + req.url;
 
     if (isRoute(path)) {
@@ -103,29 +106,36 @@ const router = async (req: ServerRequest): Promise<void> => {
     if (req.method === "GET" && req.url === "/") {
       return handleRouteRequest(req);
     }
-    return handleRequest(req);
+    return handleFileRequest(req);
   } catch (error) {
-    console.error(error);
-    handleError(req);
+    !silent && printError(error, debug);
   }
 };
 
 const main = async (args: Args) => {
   Object.keys(args).map((arg: string) => {
-    if (!isValidArg(arg)) {
-      console.log(`"${arg}" is not a known flag.`);
+    if (arg === "h") {
       printHelp();
+      Deno.exit();
+    }
+    if (!isValidArg(arg)) {
+      printArgError(arg, "is not a valid flag");
+      printHelp();
+      Deno.exit();
+    }
+
+    if (args.p && !isValidPort(args.p)) {
+      printArgError(args.p, "is not a valid port");
       Deno.exit();
     }
   });
 
-  listenAndServe({ port: 8080 }, router);
-  console.log("Serving on localhost:8080");
-  if (args.r) {
-    watchFiles();
-  }
+  listenAndServe({ port }, router);
+  printStart(port);
 };
 
 if (import.meta.main) {
   main(parsedArgs);
 }
+
+export default main;

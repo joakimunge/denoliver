@@ -1,1 +1,2 @@
-cli: deno run mod.ts
+install:
+    deno install --allow-read --allow-net -f
