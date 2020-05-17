@@ -147,7 +147,7 @@ const main = async (args: Args) => {
   
   secure ? listenAndServeTLS({ port, certFile: `${root}/denoliver.crt`, keyFile: `${root}/denoliver.key` }, router) : listenAndServe({ port }, router);
   
-  printStart(port);
+  printStart(port, secure);
 };
 
 if (import.meta.main) {
