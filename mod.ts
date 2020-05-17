@@ -4,6 +4,7 @@ import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
 import {
   listenAndServe,
+  listenAndServeTLS,
   ServerRequest,
 } from "https://deno.land/std/http/server.ts";
 
@@ -29,10 +30,11 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 /* Parse CLI args */
 const parsedArgs = parse(args);
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
-const debug = parsedArgs.d;
-const silent = parsedArgs.s;
-const reload = parsedArgs.n ? false : true;
+const debug = parsedArgs.d || false
+const silent = parsedArgs.s || false
+const reload = parsedArgs.n || false
 const port = parsedArgs.p ? parsedArgs.p : 8080;
+const secure = parsedArgs.t || false
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -130,7 +132,7 @@ const main = async (args: Args) => {
     }
   });
 
-  listenAndServe({ port }, router);
+  secure ? listenAndServeTLS({ port, certFile: `${root}/denoliver.crt`, keyFile: `${root}/denoliver.key` }, router) : listenAndServe({ port }, router);
   printStart(port);
 };
 
