@@ -84,9 +84,14 @@ export const printStart = (port: number): void => {
   );
 };
 
-export const printError = (error: any, debug: boolean = false) => {
-  debug ? console.error(error) : console.log(`${bold(red(error.message))}`);
+export const error = (msg: string) => {
+  console.log(`${bold(red(`\nERROR: ${msg}`))}`);
 };
 
-export const printArgError = (arg: string, msg: string) =>
-  console.log(red(`\nOops: "${arg}" ${msg}.`));
+export const warn = (msg: string) => {
+  console.log(`${bold(blue(`\nWARN: ${msg}`))}`);
+};
+
+export const info = (msg: string) => {
+  console.log(`${bold(green(`\nINFO: ${msg}`))}`);
+};

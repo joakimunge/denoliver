@@ -18,8 +18,8 @@ import {
   appendReloadScript,
   printStart,
   printRequest,
-  printError,
-  printArgError,
+  warn,
+  error,
   isValidPort,
   inject404,
 } from "./utils.ts";
@@ -47,8 +47,8 @@ const handleFileRequest = async (req: ServerRequest) => {
       }),
       body: file,
     });
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && debug ? console.log(err) : error(err.message);
     handleNotFound(req);
   }
 };
@@ -79,8 +79,8 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
         await socket.send("reload");
       }
     }
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && error(err.message);
   }
 };
 
@@ -109,8 +109,8 @@ const router = async (req: ServerRequest): Promise<void> => {
       return handleRouteRequest(req);
     }
     return handleFileRequest(req);
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && debug ? console.log(err) : error(err.message);
   }
 };
 
@@ -121,16 +121,25 @@ const main = async (args: Args) => {
       Deno.exit();
     }
     if (!isValidArg(arg)) {
-      printArgError(arg, "is not a valid flag");
+      error(`${arg} is not a valid flag.`);
       printHelp();
       Deno.exit();
     }
 
     if (args.p && !isValidPort(args.p)) {
-      printArgError(args.p, "is not a valid port");
+      error(`${args.p} is not a valid port.`);
       Deno.exit();
     }
   });
+
+  try {
+    await readFile(`${root}/denoliver.crt`)
+    await readFile(`${root}/denoliver.key`)
+
+  } catch(err) {
+    !silent && debug ? console.error(err) : error("Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.");
+    Deno.exit()
+  }
 
   secure ? listenAndServeTLS({ port, certFile: `${root}/denoliver.crt`, keyFile: `${root}/denoliver.key` }, router) : listenAndServe({ port }, router);
   printStart(port);
