@@ -64,11 +64,13 @@ Name the cert and key files `denoliver.crt` and `denoliver.key` and place them i
 Denoliver comes with a couple of options to customize your experience.
 
 ```
+-h       # Help
 -n       # Disable live reload - Defaults to true
 -s       # Disable all logging - Defaults to false
 -p       # Specify desired port - Defaults to 8080
 -d       # Debug for more verbose logging - Defaults to false
--t       # Secure - Requires a trusted self-signed certificate
+-t       # Use HTTPS - Requires a trusted self-signed certificate
+-c       # Use CORS - Defaults to false
 ```
 
 ### Disclaimer
