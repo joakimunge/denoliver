@@ -12,7 +12,7 @@ import notFound from "./404.ts";
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ["_", "h", "n", "s", "d", "p", "t"];
+  const args = ["_", "h", "n", "s", "d", "p", "t", "c"];
   return args.includes(arg);
 };
 
@@ -74,6 +74,7 @@ export const printHelp = (): void => {
   -s -- Silent | false
   -d -- Debug | false
   -t -- Use HTTPS - Requires trusted self signed certificate | false
+  -c -- Allow CORS | false
   `);
 };
 

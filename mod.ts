@@ -36,7 +36,7 @@ const reload = parsedArgs.n || true;
 const port = parsedArgs.p ? parsedArgs.p : 8080;
 const secure = parsedArgs.t || false;
 const help = parsedArgs.h || false;
-const cors = parsedArgs.c || true;
+const cors = parsedArgs.c || false;
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
