@@ -25,7 +25,9 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 
 ### Install Denoliver as an executable
 
-Install as a Deno executable
+Install as a Deno executable.
+
+> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net` and `--allow-read` flags to make sure Denoliver can serve your directory.
 
 ```
 $ deno install --allow-net --allow-read mod.ts
