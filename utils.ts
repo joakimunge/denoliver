@@ -73,15 +73,17 @@ export const printHelp = (): void => {
   -n -- Live Reload | true
   -s -- Silent | false
   -d -- Debug | false
+  -t -- Use HTTPS - Requires trusted self signed certificate | false
   `);
 };
 
-export const printStart = (port: number): void => {
+export const printStart = (port: number, secure: boolean): void => {
+  const tcp = secure ? "https" : "http"
   console.log(
     `\n
   ${bold(green("🦕  🚚 Denoliver"))}
 
-  ${bold(blue(`Serving on http://localhost:${port}`))}
+  ${bold(blue(`Serving on ${tcp}://localhost:${port}`))}
   `,
   );
 };
