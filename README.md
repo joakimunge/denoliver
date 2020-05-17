@@ -19,6 +19,7 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 - Dependency free! No third party dependencies. Only Deno Std Lib
 - Live reload of modified files.
 - Supports client side routing
+- Supports HTTPS
 
 ## Getting started
 
@@ -50,6 +51,12 @@ $ denoliver ./path/to/project
 // Serving on localhost:8080
 ```
 
+### Serve over https
+
+To use HTTPS you will need a trusted self-signed certificate. If you're on macOS you can use [This](https://github.com/kingkool68/generate-ssl-certs-for-local-development) bash script to easily generate one.
+
+Name the cert and key files `denoliver.crt` and `denoliver.key` and place them in your working dir.
+
 ### Options
 
 Denoliver comes with a couple of options to customize your experience.
@@ -59,6 +66,7 @@ Denoliver comes with a couple of options to customize your experience.
 -s       # Disable all logging - Defaults to false
 -p       # Specify desired port - Defaults to 8080
 -d       # Debug for more verbose logging - Defaults to false
+-t       # Secure - Requires a trusted self-signed certificate
 ```
 
 ### Disclaimer
