@@ -35,6 +35,7 @@ const silent = parsedArgs.s || false
 const reload = parsedArgs.n || true
 const port = parsedArgs.p ? parsedArgs.p : 8080;
 const secure = parsedArgs.t || false
+const help = parsedArgs.h || false
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -126,11 +127,11 @@ const checkCredentials = async () => {
 }
 
 const main = async (args: Args) => {
+  if (help) {
+    printHelp();
+    Deno.exit();
+  }
   Object.keys(args).map((arg: string) => {
-    if (arg === "h") {
-      printHelp();
-      Deno.exit();
-    }
     if (!isValidArg(arg)) {
       error(`${arg} is not a valid flag.`);
       printHelp();
