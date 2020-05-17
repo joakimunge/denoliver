@@ -4,6 +4,7 @@ import { parse, Args } from "https://deno.land/std/flags/mod.ts";
 import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
 import {
   listenAndServe,
+  listenAndServeTLS,
   ServerRequest,
 } from "https://deno.land/std/http/server.ts";
 
@@ -17,8 +18,8 @@ import {
   appendReloadScript,
   printStart,
   printRequest,
-  printError,
-  printArgError,
+  warn,
+  error,
   isValidPort,
   inject404,
 } from "./utils.ts";
@@ -29,10 +30,12 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 /* Parse CLI args */
 const parsedArgs = parse(args);
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
-const debug = parsedArgs.d;
-const silent = parsedArgs.s;
-const reload = parsedArgs.n ? false : true;
+const debug = parsedArgs.d || false
+const silent = parsedArgs.s || false
+const reload = parsedArgs.n || true
 const port = parsedArgs.p ? parsedArgs.p : 8080;
+const secure = parsedArgs.t || false
+const help = parsedArgs.h || false
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -45,8 +48,8 @@ const handleFileRequest = async (req: ServerRequest) => {
       }),
       body: file,
     });
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && debug ? console.log(err) : error(err.message);
     handleNotFound(req);
   }
 };
@@ -58,7 +61,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: reload ? appendReloadScript(file, port) : file,
+    body: reload ? appendReloadScript(file, port, secure) : file,
   });
 };
 
@@ -77,8 +80,8 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
         await socket.send("reload");
       }
     }
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && error(err.message);
   }
 };
 
@@ -93,7 +96,7 @@ const handleNotFound = async (
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req);
-  if (reload && isWebSocket(req)) {
+  if(reload && isWebSocket(req)) {
     return await handleWs(req);
   }
   try {
@@ -107,31 +110,45 @@ const router = async (req: ServerRequest): Promise<void> => {
       return handleRouteRequest(req);
     }
     return handleFileRequest(req);
-  } catch (error) {
-    !silent && printError(error, debug);
+  } catch (err) {
+    !silent && debug ? console.log(err) : error(err.message);
   }
 };
 
+const checkCredentials = async () => {
+  try {
+    await Deno.stat(`${root}/denoliver.crt`)
+    await Deno.stat(`${root}/denoliver.key`)
+
+  } catch(err) {
+    !silent && debug ? console.error(err) : error("Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.");
+    Deno.exit()
+  }
+}
+
 const main = async (args: Args) => {
+  if (help) {
+    printHelp();
+    Deno.exit();
+  }
   Object.keys(args).map((arg: string) => {
-    if (arg === "h") {
-      printHelp();
-      Deno.exit();
-    }
     if (!isValidArg(arg)) {
-      printArgError(arg, "is not a valid flag");
+      error(`${arg} is not a valid flag.`);
       printHelp();
       Deno.exit();
     }
 
     if (args.p && !isValidPort(args.p)) {
-      printArgError(args.p, "is not a valid port");
+      error(`${args.p} is not a valid port.`);
       Deno.exit();
     }
   });
 
-  listenAndServe({ port }, router);
-  printStart(port);
+  secure && await checkCredentials()
+  
+  secure ? listenAndServeTLS({ port, certFile: `${root}/denoliver.crt`, keyFile: `${root}/denoliver.key` }, router) : listenAndServe({ port }, router);
+  
+  printStart(port, secure);
 };
 
 if (import.meta.main) {

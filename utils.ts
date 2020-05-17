@@ -12,7 +12,7 @@ import notFound from "./404.ts";
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ["_", "h", "n", "s", "d", "p"];
+  const args = ["_", "h", "n", "s", "d", "p", "t"];
   return args.includes(arg);
 };
 
@@ -42,9 +42,11 @@ export const isWebSocket = (req: ServerRequest): boolean =>
 export const appendReloadScript = (
   file: string,
   port: number,
+  secure: boolean
 ): string => {
+  const protocol = secure ? "wss" : "ws"
   return file + `<script>
-  const socket = new WebSocket('ws://localhost:${port}');
+  const socket = new WebSocket('${protocol}://localhost:${port}');
   socket.onopen = () => {
     console.log('Socket connection open. Listening for events.');
   };
@@ -71,22 +73,29 @@ export const printHelp = (): void => {
   -n -- Live Reload | true
   -s -- Silent | false
   -d -- Debug | false
+  -t -- Use HTTPS - Requires trusted self signed certificate | false
   `);
 };
 
-export const printStart = (port: number): void => {
+export const printStart = (port: number, secure: boolean): void => {
+  const tcp = secure ? "https" : "http"
   console.log(
     `\n
   ${bold(green("🦕  🚚 Denoliver"))}
 
-  ${bold(blue(`Serving on http://localhost:${port}`))}
+  ${bold(blue(`Serving on ${tcp}://localhost:${port}`))}
   `,
   );
 };
 
-export const printError = (error: any, debug: boolean = false) => {
-  debug ? console.error(error) : console.log(`${bold(red(error.message))}`);
+export const error = (msg: string) => {
+  console.log(`${bold(red(`\nERROR: ${msg}`))}`);
 };
 
-export const printArgError = (arg: string, msg: string) =>
-  console.log(red(`\nOops: "${arg}" ${msg}.`));
+export const warn = (msg: string) => {
+  console.log(`${bold(blue(`\nWARN: ${msg}`))}`);
+};
+
+export const info = (msg: string) => {
+  console.log(`${bold(green(`\nINFO: ${msg}`))}`);
+};
