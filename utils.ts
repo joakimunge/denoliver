@@ -42,9 +42,11 @@ export const isWebSocket = (req: ServerRequest): boolean =>
 export const appendReloadScript = (
   file: string,
   port: number,
+  secure: boolean
 ): string => {
+  const protocol = secure ? "wss" : "ws"
   return file + `<script>
-  const socket = new WebSocket('ws://localhost:${port}');
+  const socket = new WebSocket('${protocol}://localhost:${port}');
   socket.onopen = () => {
     console.log('Socket connection open. Listening for events.');
   };

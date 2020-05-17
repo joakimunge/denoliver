@@ -32,7 +32,7 @@ const parsedArgs = parse(args);
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
 const debug = parsedArgs.d || false
 const silent = parsedArgs.s || false
-const reload = parsedArgs.n || false
+const reload = parsedArgs.n || true
 const port = parsedArgs.p ? parsedArgs.p : 8080;
 const secure = parsedArgs.t || false
 
@@ -60,7 +60,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     headers: new Headers({
       "content-type": "text/html",
     }),
-    body: reload ? appendReloadScript(file, port) : file,
+    body: reload ? appendReloadScript(file, port, secure) : file,
   });
 };
 
@@ -95,7 +95,7 @@ const handleNotFound = async (
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req);
-  if (reload && isWebSocket(req)) {
+  if(reload && isWebSocket(req)) {
     return await handleWs(req);
   }
   try {
