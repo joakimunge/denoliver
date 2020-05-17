@@ -30,12 +30,13 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>;
 /* Parse CLI args */
 const parsedArgs = parse(args);
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
-const debug = parsedArgs.d || false
-const silent = parsedArgs.s || false
-const reload = parsedArgs.n || true
+const debug = parsedArgs.d || false;
+const silent = parsedArgs.s || false;
+const reload = parsedArgs.n || true;
 const port = parsedArgs.p ? parsedArgs.p : 8080;
-const secure = parsedArgs.t || false
-const help = parsedArgs.h || false
+const secure = parsedArgs.t || false;
+const help = parsedArgs.h || false;
+const cors = parsedArgs.c || true;
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -45,6 +46,7 @@ const handleFileRequest = async (req: ServerRequest) => {
       status: 200,
       headers: new Headers({
         "content-type": contentType(path),
+        ...cors && { "Access-Control-Allow-Origin": "*" },
       }),
       body: file,
     });
@@ -60,6 +62,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     status: 200,
     headers: new Headers({
       "content-type": "text/html",
+      ...cors && { "Access-Control-Allow-Origin": "*" },
     }),
     body: reload ? appendReloadScript(file, port, secure) : file,
   });
@@ -96,7 +99,7 @@ const handleNotFound = async (
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req);
-  if(reload && isWebSocket(req)) {
+  if (reload && isWebSocket(req)) {
     return await handleWs(req);
   }
   try {
@@ -117,14 +120,17 @@ const router = async (req: ServerRequest): Promise<void> => {
 
 const checkCredentials = async () => {
   try {
-    await Deno.stat(`${root}/denoliver.crt`)
-    await Deno.stat(`${root}/denoliver.key`)
-
-  } catch(err) {
-    !silent && debug ? console.error(err) : error("Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.");
-    Deno.exit()
+    await Deno.stat(`${root}/denoliver.crt`);
+    await Deno.stat(`${root}/denoliver.key`);
+  } catch (err) {
+    !silent && debug
+      ? console.error(err)
+      : error(
+        "Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.",
+      );
+    Deno.exit();
   }
-}
+};
 
 const main = async (args: Args) => {
   if (help) {
@@ -144,10 +150,19 @@ const main = async (args: Args) => {
     }
   });
 
-  secure && await checkCredentials()
-  
-  secure ? listenAndServeTLS({ port, certFile: `${root}/denoliver.crt`, keyFile: `${root}/denoliver.key` }, router) : listenAndServe({ port }, router);
-  
+  secure && await checkCredentials();
+
+  secure
+    ? listenAndServeTLS(
+      {
+        port,
+        certFile: `${root}/denoliver.crt`,
+        keyFile: `${root}/denoliver.key`,
+      },
+      router,
+    )
+    : listenAndServe({ port }, router);
+
   printStart(port, secure);
 };
 

@@ -42,9 +42,9 @@ export const isWebSocket = (req: ServerRequest): boolean =>
 export const appendReloadScript = (
   file: string,
   port: number,
-  secure: boolean
+  secure: boolean,
 ): string => {
-  const protocol = secure ? "wss" : "ws"
+  const protocol = secure ? "wss" : "ws";
   return file + `<script>
   const socket = new WebSocket('${protocol}://localhost:${port}');
   socket.onopen = () => {
@@ -78,7 +78,7 @@ export const printHelp = (): void => {
 };
 
 export const printStart = (port: number, secure: boolean): void => {
-  const tcp = secure ? "https" : "http"
+  const tcp = secure ? "https" : "http";
   console.log(
     `\n
   ${bold(green("🦕  🚚 Denoliver"))}
