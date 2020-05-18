@@ -28,15 +28,24 @@ import {
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
 /* Parse CLI args */
-const parsedArgs = parse(args)
+const parsedArgs = parse(args, {
+  default: {
+    d: false,
+    s: false,
+    n: true,
+    p: 8080,
+    t: false,
+    c: false,
+  },
+})
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.'
-const debug = parsedArgs.d || false
-const silent = parsedArgs.s || false
-const reload = parsedArgs.n || true
-const port = parsedArgs.p ? parsedArgs.p : 8080
-const secure = parsedArgs.t || false
-const help = parsedArgs.h || false
-const cors = parsedArgs.c || false
+const debug = parsedArgs.d
+const silent = parsedArgs.s
+const reload = parsedArgs.n
+const port = parsedArgs.p
+const secure = parsedArgs.t
+const help = parsedArgs.h
+const cors = parsedArgs.c
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
