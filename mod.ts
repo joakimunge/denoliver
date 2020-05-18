@@ -1,11 +1,11 @@
 #!/usr/bin/env -S deno run --allow-net
 const { args } = Deno;
-import { parse, Args } from "https://deno.land/std/flags/mod.ts";
-import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
+import { parse, Args } from 'https://deno.land/std/flags/mod.ts';
+import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts';
 import {
   listenAndServe,
   ServerRequest,
-} from "https://deno.land/std/http/server.ts";
+} from 'https://deno.land/std/http/server.ts';
 
 import {
   isRoute,
@@ -21,14 +21,14 @@ import {
   printArgError,
   isValidPort,
   inject404,
-} from "./utils.ts";
+} from './utils.ts';
 
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>;
 
 /* Parse CLI args */
 const parsedArgs = parse(args);
-const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : ".";
+const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.';
 const debug = parsedArgs.d;
 const silent = parsedArgs.s;
 const reload = parsedArgs.n ? false : true;
@@ -41,7 +41,7 @@ const handleFileRequest = async (req: ServerRequest) => {
     return req.respond({
       status: 200,
       headers: new Headers({
-        "content-type": contentType(path),
+        'content-type': contentType(path),
       }),
       body: file,
     });
@@ -52,14 +52,20 @@ const handleFileRequest = async (req: ServerRequest) => {
 };
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
-  const file = await readFile(`${root}/index.html`);
-  req.respond({
-    status: 200,
-    headers: new Headers({
-      "content-type": "text/html",
-    }),
-    body: reload ? appendReloadScript(file, port) : file,
-  });
+  try {
+    const file = await readFile(`${root}/index.html`);
+    req.respond({
+      status: 200,
+      headers: new Headers({
+        'content-type': 'text/html',
+      }),
+      body: reload ? appendReloadScript(file, port) : file,
+    });
+  } catch (err) {
+    !silent && printError(err, debug);
+    console.log(`ERROR: Could not find index.html in ${root}`);
+    handleNotFound(req);
+  }
 };
 
 const handleWs = async (req: ServerRequest): Promise<void> => {
@@ -68,13 +74,16 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
   try {
     const { conn, r: bufReader, w: bufWriter, headers } = req;
-    const socket = await acceptWebSocket(
-      { conn, bufReader, bufWriter, headers },
-    );
+    const socket = await acceptWebSocket({
+      conn,
+      bufReader,
+      bufWriter,
+      headers,
+    });
 
     for await (const event of watcher) {
-      if (event.kind === "modify") {
-        await socket.send("reload");
+      if (event.kind === 'modify') {
+        await socket.send('reload');
       }
     }
   } catch (error) {
@@ -82,9 +91,7 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
   }
 };
 
-const handleNotFound = async (
-  req: ServerRequest,
-): Promise<void> => {
+const handleNotFound = async (req: ServerRequest): Promise<void> => {
   return req.respond({
     status: 404,
     body: inject404(req.url),
@@ -103,7 +110,7 @@ const router = async (req: ServerRequest): Promise<void> => {
       return handleRouteRequest(req);
     }
 
-    if (req.method === "GET" && req.url === "/") {
+    if (req.method === 'GET' && req.url === '/') {
       return handleRouteRequest(req);
     }
     return handleFileRequest(req);
@@ -114,18 +121,18 @@ const router = async (req: ServerRequest): Promise<void> => {
 
 const main = async (args: Args) => {
   Object.keys(args).map((arg: string) => {
-    if (arg === "h") {
+    if (arg === 'h') {
       printHelp();
       Deno.exit();
     }
     if (!isValidArg(arg)) {
-      printArgError(arg, "is not a valid flag");
+      printArgError(arg, 'is not a valid flag');
       printHelp();
       Deno.exit();
     }
 
     if (args.p && !isValidPort(args.p)) {
-      printArgError(args.p, "is not a valid port");
+      printArgError(args.p, 'is not a valid port');
       Deno.exit();
     }
   });
