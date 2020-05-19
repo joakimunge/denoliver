@@ -83,6 +83,7 @@ export const printStart = (port: number, secure: boolean): void => {
   ${bold(green('🦕  🚚 Denoliver'))}
 
   ${bold(blue(`Serving on ${tcp}://localhost:${port}`))}
+  
   `,
   )
 }

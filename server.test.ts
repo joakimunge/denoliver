@@ -1,10 +1,12 @@
 import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
+import { Args } from 'https://deno.land/std/flags/mod.ts'
+
 let server: Deno.Process
 const { test } = Deno
 
-async function setup(): Promise<void> {
+async function setup(args?: Args): Promise<void> {
   server = await Deno.run({
     cmd: [
       Deno.execPath(),
@@ -13,17 +15,15 @@ async function setup(): Promise<void> {
       '--allow-net',
       './mod.ts',
       './demo',
-      '-c',
       '-p6060',
     ],
     stdout: 'piped',
     stderr: 'null',
   })
-
   assert(server.stdout != null)
   const r = new TextProtoReader(new BufReader(server.stdout))
   const s = await r.readLine()
-  assert(s !== null && s.includes('we are live'))
+  assert(s !== null && s.includes('Denoliver v1.0.0'))
 }
 
 async function tearDown(): Promise<void> {
@@ -32,11 +32,69 @@ async function tearDown(): Promise<void> {
   server.stdout!.close()
 }
 
-test('file_server serveFile', async (): Promise<void> => {
+test('handleRouteRequest /', async (): Promise<void> => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060/index.html')
-    console.log(res)
+    const res = await fetch('http://localhost:6060')
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    await tearDown()
+  }
+})
+
+test('handleRouteRequest to  /any/other/route', async (): Promise<void> => {
+  await setup()
+  try {
+    const res = await fetch('http://localhost:6060/any/other/route')
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    await tearDown()
+  }
+})
+
+test('handleFileRequest', async (): Promise<void> => {
+  await setup()
+  try {
+    const res = await fetch('http://localhost:6060/style.css')
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    const localFile = new TextDecoder().decode(
+      await Deno.readFile('./demo/style.css'),
+    )
+    assert(file, localFile)
+  } finally {
+    await tearDown()
+  }
+})
+
+test('handleNotFound', async (): Promise<void> => {
+  await setup()
+  try {
+    const res = await fetch('http://localhost:6060/does-not-exist.js')
+    const file = await res.text()
+    assertEquals(res.status, 404)
+    assertEquals(res.statusText, 'Not Found')
+    assert(file.includes('<title>404</title>'))
+  } finally {
+    await tearDown()
+  }
+})
+
+test('handleWs', async (): Promise<void> => {
+  await setup()
+  try {
+    const res = await fetch('http://localhost:6060/does-not-exist.js')
+    const file = await res.text()
+    assertEquals(res.status, 404)
+    assertEquals(res.statusText, 'Not Found')
+    assert(file.includes('<title>404</title>'))
   } finally {
     await tearDown()
   }

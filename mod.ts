@@ -173,6 +173,7 @@ const main = async (args: Args) => {
       )
     : listenAndServe({ port }, router)
 
+  console.log('Denoliver v1.0.0')
   printStart(port, secure)
 }
 
