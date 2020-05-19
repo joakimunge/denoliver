@@ -1,32 +1,43 @@
-import { assert } from 'https://deno.land/std/testing/asserts.ts'
+import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
-let server
+let server: Deno.Process
+const { test } = Deno
 
-async function startFileServer(): Promise<void> {
+async function setup(): Promise<void> {
   server = await Deno.run({
     cmd: [
       Deno.execPath(),
       'run',
       '--allow-read',
       '--allow-net',
-      'mod.ts',
+      './mod.ts',
       './demo',
+      '-c',
       '-p6060',
     ],
+    stdout: 'piped',
+    stderr: 'null',
   })
 
-  // Once fileServer is ready it will write to its stdout.
-  console.log(server)
-  // assert(server.stdout != null)
-  // const r = new TextProtoReader(new BufReader(server.stdout))
-  // const s = await r.readLine()
-  // assert(s !== null && s.includes('Denoliver'))
+  assert(server.stdout != null)
+  const r = new TextProtoReader(new BufReader(server.stdout))
+  const s = await r.readLine()
+  assert(s !== null && s.includes('we are live'))
 }
 
-Deno.test('SERVER', async () => {
-  await startFileServer()
+async function tearDown(): Promise<void> {
+  server.close()
+  await Deno.readAll(server.stdout!)
+  server.stdout!.close()
+}
 
-  const res = await fetch('http://localhost:6060')
-  console.log(res)
+test('file_server serveFile', async (): Promise<void> => {
+  await setup()
+  try {
+    const res = await fetch('http://localhost:6060/index.html')
+    console.log(res)
+  } finally {
+    await tearDown()
+  }
 })
