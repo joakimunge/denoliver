@@ -2,6 +2,13 @@
   <img src="media/denoliver.png" title="Denoliver" alt="It's a liver" width="530">
 </p>
 
+<p align="center">
+<a href="https://github.com/joakimunge/denoliver/actions">
+<img src="https://img.shields.io/github/workflow/status/joakimunge/denoliver/ci?style=for-the-badge"></a>
+<a href="https://github.com/joakimunge/denoliver/releases">
+<img src="https://img.shields.io/github/v/release/joakimunge/denoliver?style=for-the-badge"></a>
+</p>
+
 ---
 
 **Denoliver** is a small, simple, no config static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
