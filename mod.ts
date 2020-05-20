@@ -10,7 +10,6 @@ import {
 
 import {
   isRoute,
-  contentType,
   isValidArg,
   printHelp,
   readFile,
@@ -18,7 +17,6 @@ import {
   appendReloadScript,
   printStart,
   printRequest,
-  warn,
   error,
   isValidPort,
   inject404,
@@ -33,7 +31,7 @@ const parsedArgs = parse(args, {
   default: {
     d: false,
     s: false,
-    n: true,
+    n: false,
     p: 8080,
     t: false,
     c: false,
@@ -42,7 +40,7 @@ const parsedArgs = parse(args, {
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.'
 const debug = parsedArgs.d
 const silent = parsedArgs.s
-const reload = parsedArgs.n
+const disableReload = parsedArgs.n
 const port = parsedArgs.p
 const secure = parsedArgs.t
 const help = parsedArgs.h
@@ -68,7 +66,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   req.respond({
     status: 200,
     headers: setHeaders(cors),
-    body: reload ? appendReloadScript(file, port, secure) : file,
+    body: disableReload ? file : appendReloadScript(file, port, secure),
   })
 }
 
@@ -105,7 +103,7 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req)
-  if (reload && isWebSocket(req)) {
+  if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
   }
   try {
