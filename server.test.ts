@@ -7,16 +7,20 @@ let server: Deno.Process
 const { test } = Deno
 
 async function setup(args?: Args): Promise<void> {
+  const cmd = [
+    Deno.execPath(),
+    'run',
+    '--allow-read',
+    '--allow-net',
+    './mod.ts',
+    './demo',
+    '-p6060',
+  ]
+
+  args && args.c && cmd.push('-c')
+
   server = await Deno.run({
-    cmd: [
-      Deno.execPath(),
-      'run',
-      '--allow-read',
-      '--allow-net',
-      './mod.ts',
-      './demo',
-      '-p6060',
-    ],
+    cmd,
     stdout: 'piped',
     stderr: 'null',
   })
@@ -87,14 +91,15 @@ test('handleNotFound', async (): Promise<void> => {
   }
 })
 
-test('handleWs', async (): Promise<void> => {
-  await setup()
+test('cors', async (): Promise<void> => {
+  await setup({ _: ['./demo'], c: true })
   try {
-    const res = await fetch('http://localhost:6060/does-not-exist.js')
+    const res = await fetch('http://localhost:6060')
     const file = await res.text()
-    assertEquals(res.status, 404)
-    assertEquals(res.statusText, 'Not Found')
-    assert(file.includes('<title>404</title>'))
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(res.headers.has('access-control-allow-origin'))
+    assert(file.includes(`<div id="denoliver">`))
   } finally {
     await tearDown()
   }
