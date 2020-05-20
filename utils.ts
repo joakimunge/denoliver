@@ -34,6 +34,15 @@ export const readFile = async (filename: string) => {
 export const isWebSocket = (req: ServerRequest): boolean =>
   req.headers.get('upgrade') === 'websocket'
 
+export const setHeaders = (cors: boolean, path?: string): Headers => {
+  const headers = new Headers()
+  path
+    ? headers.set('content-type', contentType(path))
+    : headers.set('content-type', 'text/html')
+  cors && headers.set('Access-Control-Allow-Origin', '*')
+  return headers
+}
+
 export const appendReloadScript = (
   file: string,
   port: number,
@@ -83,6 +92,7 @@ export const printStart = (port: number, secure: boolean): void => {
   ${bold(green('🦕  🚚 Denoliver'))}
 
   ${bold(blue(`Serving on ${tcp}://localhost:${port}`))}
+  
   `,
   )
 }

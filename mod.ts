@@ -10,7 +10,6 @@ import {
 
 import {
   isRoute,
-  contentType,
   isValidArg,
   printHelp,
   readFile,
@@ -18,10 +17,10 @@ import {
   appendReloadScript,
   printStart,
   printRequest,
-  warn,
   error,
   isValidPort,
   inject404,
+  setHeaders,
 } from './utils.ts'
 
 /* Initialize file watcher */
@@ -32,7 +31,7 @@ const parsedArgs = parse(args, {
   default: {
     d: false,
     s: false,
-    n: true,
+    n: false,
     p: 8080,
     t: false,
     c: false,
@@ -41,7 +40,7 @@ const parsedArgs = parse(args, {
 const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.'
 const debug = parsedArgs.d
 const silent = parsedArgs.s
-const reload = parsedArgs.n
+const disableReload = parsedArgs.n
 const port = parsedArgs.p
 const secure = parsedArgs.t
 const help = parsedArgs.h
@@ -53,10 +52,7 @@ const handleFileRequest = async (req: ServerRequest) => {
     const file = await Deno.open(path)
     return req.respond({
       status: 200,
-      headers: new Headers({
-        'content-type': contentType(path),
-        ...(cors && { 'Access-Control-Allow-Origin': '*' }),
-      }),
+      headers: setHeaders(cors, path),
       body: file,
     })
   } catch (err) {
@@ -69,11 +65,8 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   const file = await readFile(`${root}/index.html`)
   req.respond({
     status: 200,
-    headers: new Headers({
-      'content-type': 'text/html',
-      ...(cors && { 'Access-Control-Allow-Origin': '*' }),
-    }),
-    body: reload ? appendReloadScript(file, port, secure) : file,
+    headers: setHeaders(cors),
+    body: disableReload ? file : appendReloadScript(file, port, secure),
   })
 }
 
@@ -103,13 +96,14 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
 const handleNotFound = async (req: ServerRequest): Promise<void> => {
   return req.respond({
     status: 404,
+    headers: setHeaders(cors),
     body: inject404(req.url),
   })
 }
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req)
-  if (reload && isWebSocket(req)) {
+  if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
   }
   try {
@@ -173,6 +167,7 @@ const main = async (args: Args) => {
       )
     : listenAndServe({ port }, router)
 
+  console.log('Denoliver v1.0.0')
   printStart(port, secure)
 }
 
