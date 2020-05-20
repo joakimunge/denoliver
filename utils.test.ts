@@ -1,5 +1,11 @@
-import { assertEquals } from 'https://deno.land/std/testing/asserts.ts'
-import { isRoute, contentType, isValidPort, isValidArg } from './utils.ts'
+import { assertEquals, assert } from 'https://deno.land/std/testing/asserts.ts'
+import {
+  isRoute,
+  contentType,
+  isValidPort,
+  isValidArg,
+  readFile,
+} from './utils.ts'
 
 /* Utils */
 
@@ -61,4 +67,9 @@ Deno.test('isValidArg', () => {
 Deno.test('isValidArg', () => {
   const valid = isValidArg('b')
   assertEquals(valid, false)
+})
+
+Deno.test('readFile', async () => {
+  const file = await readFile('./demo/index.html')
+  assert(file.includes('<!DOCTYPE html'))
 })
