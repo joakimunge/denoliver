@@ -1,5 +1,5 @@
 import { assertEquals } from 'https://deno.land/std/testing/asserts.ts'
-import { isRoute, contentType, isValidPort } from './utils.ts'
+import { isRoute, contentType, isValidPort, isValidArg } from './utils.ts'
 
 /* Utils */
 
@@ -50,5 +50,15 @@ Deno.test('isValidPort', () => {
 
 Deno.test('isValidPort', () => {
   const valid = isValidPort(false)
+  assertEquals(valid, false)
+})
+
+Deno.test('isValidArg', () => {
+  const valid = isValidArg('n')
+  assertEquals(valid, true)
+})
+
+Deno.test('isValidArg', () => {
+  const valid = isValidArg('b')
   assertEquals(valid, false)
 })

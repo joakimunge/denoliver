@@ -5,6 +5,7 @@ import { Args } from 'https://deno.land/std/flags/mod.ts'
 import { appendReloadScript } from './utils.ts'
 
 let server: Deno.Process
+let port: number = 6060
 const { test } = Deno
 
 async function setup(args?: Args): Promise<void> {
@@ -19,6 +20,12 @@ async function setup(args?: Args): Promise<void> {
 
   args && args.c && cmd.push('-c')
   args && args.n && cmd.push('-n')
+  if (args && args.p) {
+    port = args.p
+  } else {
+    port = 6060
+  }
+  cmd.push(`-p${port}`)
 
   server = await Deno.run({
     cmd,
@@ -37,10 +44,23 @@ async function tearDown(): Promise<void> {
   server.stdout!.close()
 }
 
+test('should serve on given port', async (): Promise<void> => {
+  await setup({ _: ['./demo'], p: 7000 })
+  try {
+    const res = await fetch(`http://localhost:${port}`)
+    const file = await res.text()
+    assertEquals(port, 7000)
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+  } finally {
+    await tearDown()
+  }
+})
+
 test('handleRouteRequest should return index.html', async (): Promise<void> => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060')
+    const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -53,7 +73,7 @@ test('handleRouteRequest should return index.html', async (): Promise<void> => {
 test('index.html should contain reload script', async (): Promise<void> => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060')
+    const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -68,7 +88,7 @@ test('given no reload option index.html should not contain reload script', async
 > => {
   await setup({ _: ['./demo'], n: true })
   try {
-    const res = await fetch('http://localhost:6060')
+    const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -81,7 +101,7 @@ test('given no reload option index.html should not contain reload script', async
 test('/any/other/route should return index.html', async (): Promise<void> => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060/any/other/route')
+    const res = await fetch(`http://localhost:${port}/any/other/route`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -96,7 +116,7 @@ test('/style.css should return style.css from ./demo', async (): Promise<
 > => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060/style.css')
+    const res = await fetch(`http://localhost:${port}/style.css`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -114,7 +134,7 @@ test('given a path to file not found should return 404', async (): Promise<
 > => {
   await setup()
   try {
-    const res = await fetch('http://localhost:6060/does-not-exist.js')
+    const res = await fetch(`http://localhost:${port}/does-not-exist.js`)
     const file = await res.text()
     assertEquals(res.status, 404)
     assertEquals(res.statusText, 'Not Found')
@@ -129,7 +149,7 @@ test('when cors enabled response should have access control header', async (): P
 > => {
   await setup({ _: ['./demo'], c: true })
   try {
-    const res = await fetch('http://localhost:6060')
+    const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
