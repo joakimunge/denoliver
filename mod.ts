@@ -22,6 +22,7 @@ import {
   error,
   isValidPort,
   inject404,
+  setHeaders,
 } from './utils.ts'
 
 /* Initialize file watcher */
@@ -53,10 +54,7 @@ const handleFileRequest = async (req: ServerRequest) => {
     const file = await Deno.open(path)
     return req.respond({
       status: 200,
-      headers: new Headers({
-        'content-type': contentType(path),
-        ...(cors && { 'Access-Control-Allow-Origin': '*' }),
-      }),
+      headers: setHeaders(cors, path),
       body: file,
     })
   } catch (err) {
@@ -69,10 +67,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   const file = await readFile(`${root}/index.html`)
   req.respond({
     status: 200,
-    headers: new Headers({
-      'content-type': 'text/html',
-      ...(cors && { 'Access-Control-Allow-Origin': '*' }),
-    }),
+    headers: setHeaders(cors),
     body: reload ? appendReloadScript(file, port, secure) : file,
   })
 }
@@ -103,6 +98,7 @@ const handleWs = async (req: ServerRequest): Promise<void> => {
 const handleNotFound = async (req: ServerRequest): Promise<void> => {
   return req.respond({
     status: 404,
+    headers: setHeaders(cors),
     body: inject404(req.url),
   })
 }
