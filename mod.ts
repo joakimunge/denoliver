@@ -130,7 +130,29 @@ const checkCredentials = async () => {
   }
 }
 
-interface DenoliverArgs {
+const startListener = async (
+  handler: (req: ServerRequest) => void,
+): Promise<void> => {
+  try {
+    for await (const req of server) {
+      handler(req)
+    }
+  } catch (err) {
+    !silent && debug ? console.error(err) : error(err.message)
+  }
+}
+
+const setGlobals = (args: DenoliverOptions): void => {
+  root = args.root ?? '.'
+  debug = args.debug ?? false
+  silent = args.silent ?? false
+  disableReload = args.disableReload ?? false
+  port = args.port ?? 8080
+  secure = args.secure ?? false
+  cors = args.cors ?? false
+}
+
+interface DenoliverOptions {
   root?: string
   port?: number
   silent?: boolean
@@ -141,7 +163,15 @@ interface DenoliverArgs {
   help?: boolean
 }
 
-const main = async (args?: DenoliverArgs): Promise<Server> => {
+/**
+ * Serve a directory over HTTP/HTTPS
+ *
+ *     const options = { port: 8000, cors: true };
+ *     const denoliver = await main(options)
+ *
+ * @param options Optional server config
+ */
+const main = async (args?: DenoliverOptions): Promise<Server> => {
   if (args) {
     setGlobals(args)
   }
@@ -172,28 +202,6 @@ const main = async (args?: DenoliverArgs): Promise<Server> => {
   printStart(port, secure)
   startListener(router)
   return server
-}
-
-const startListener = async (
-  handler: (req: ServerRequest) => void,
-): Promise<void> => {
-  try {
-    for await (const req of server) {
-      handler(req)
-    }
-  } catch (err) {
-    !silent && debug ? console.error(err) : error(err.message)
-  }
-}
-
-const setGlobals = (args: DenoliverArgs): void => {
-  root = args.root ?? '.'
-  debug = args.debug ?? false
-  silent = args.silent ?? false
-  disableReload = args.disableReload ?? false
-  port = args.port ?? 8080
-  secure = args.secure ?? false
-  cors = args.cors ?? false
 }
 
 if (import.meta.main) {
