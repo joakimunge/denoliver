@@ -27,6 +27,7 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 - Live reload of modified files.
 - Supports client side routing
 - Supports HTTPS
+- Allows for programmatic use as a module
 
 ## Getting started
 
@@ -37,27 +38,31 @@ Install as a Deno executable.
 > NOTE: Deno is a secure runtime by default. You need to include the `--allow-net` and `--allow-read` flags to make sure Denoliver can serve your directory.
 
 ```
-$ deno install --allow-net --allow-read mod.ts
+$ deno install --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
 ```
 
 or if you're not happy with the name:
 
 ```
-$ deno install -n whateverNameYouWant --allow-net --allow-read mod.ts
+$ deno install -n whateverNameYouWant --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
 ```
 
 ### Running
 
 From your project root / directory you want to serve
 
-```
+```s
 $ denoliver
+```
 
-/* or */
+### Programmatic use
 
-$ denoliver ./path/to/project
+Denoliver can also be used as a module in any Deno project.
 
-// Serving on localhost:8080
+```typescript
+import denoliver from 'https://deno.land/x/denoliver/mod.ts'
+
+const server = denoliver({ port: 6060, cors: true })
 ```
 
 ### Serve over https
@@ -70,7 +75,7 @@ Name the cert and key files `denoliver.crt` and `denoliver.key` and place them i
 
 Denoliver comes with a couple of options to customize your experience.
 
-```
+```s
 -h       # Help
 -n       # Disable live reload - Defaults to true
 -s       # Disable all logging - Defaults to false
