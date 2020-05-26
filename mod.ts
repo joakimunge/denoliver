@@ -101,7 +101,6 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req)
-  console.log(req)
   if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
   }
@@ -155,6 +154,7 @@ const setGlobals = (args: DenoliverOptions): void => {
   port = args.port ?? 8080
   secure = args.secure ?? false
   cors = args.cors ?? false
+  entryPoint = args.entryPoint ?? 'index.html'
 }
 
 interface DenoliverOptions {
@@ -219,7 +219,7 @@ if (import.meta.main) {
       p: 8080,
       t: false,
       c: false,
-      e: 'index.html',
+      entry: 'index.html',
     },
   })
 
@@ -240,7 +240,7 @@ if (import.meta.main) {
     secure: parsedArgs.t,
     help: parsedArgs.h,
     cors: parsedArgs.c,
-    entryPoint: parsedArgs.e,
+    entryPoint: parsedArgs.entry,
   })
 
   main()
