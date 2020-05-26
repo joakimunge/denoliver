@@ -1,13 +1,14 @@
-#!/usr/bin/env -S deno run --allow-net
 const { args } = Deno
-import { parse, Args } from 'https://deno.land/std/flags/mod.ts'
+import { parse } from 'https://deno.land/std/flags/mod.ts'
 import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts'
 import {
-  listenAndServe,
-  listenAndServeTLS,
   ServerRequest,
+  serve,
+  Server,
+  serveTLS,
 } from 'https://deno.land/std/http/server.ts'
 
+/* Denoliver utils */
 import {
   isRoute,
   isValidArg,
@@ -26,25 +27,18 @@ import {
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
-/* Parse CLI args */
-const parsedArgs = parse(args, {
-  default: {
-    d: false,
-    s: false,
-    n: false,
-    p: 8080,
-    t: false,
-    c: false,
-  },
-})
-const root = parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.'
-const debug = parsedArgs.d
-const silent = parsedArgs.s
-const disableReload = parsedArgs.n
-const port = parsedArgs.p
-const secure = parsedArgs.t
-const help = parsedArgs.h
-const cors = parsedArgs.c
+/* Server */
+let server: Server
+
+/* Globals */
+let root: string = '.'
+let port: number = 8080
+let debug: boolean = false
+let silent: boolean = false
+let disableReload: boolean = false
+let secure: boolean = false
+let help: boolean = false
+let cors: boolean = false
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -56,7 +50,7 @@ const handleFileRequest = async (req: ServerRequest) => {
       body: file,
     })
   } catch (err) {
-    !silent && debug ? console.log(err) : error(err.message)
+    !silent && debug ? console.error(err) : error(err.message)
     handleNotFound(req)
   }
 }
@@ -136,43 +130,112 @@ const checkCredentials = async () => {
   }
 }
 
-const main = async (args: Args) => {
+const startListener = async (
+  handler: (req: ServerRequest) => void,
+): Promise<void> => {
+  try {
+    for await (const req of server) {
+      handler(req)
+    }
+  } catch (err) {
+    !silent && debug ? console.error(err) : error(err.message)
+  }
+}
+
+const setGlobals = (args: DenoliverOptions): void => {
+  root = args.root ?? '.'
+  debug = args.debug ?? false
+  silent = args.silent ?? false
+  disableReload = args.disableReload ?? false
+  port = args.port ?? 8080
+  secure = args.secure ?? false
+  cors = args.cors ?? false
+}
+
+interface DenoliverOptions {
+  root?: string
+  port?: number
+  silent?: boolean
+  disableReload?: boolean
+  debug?: boolean
+  cors?: boolean
+  secure?: boolean
+  help?: boolean
+}
+
+/**
+ * Serve a directory over HTTP/HTTPS
+ *
+ *     const options = { port: 8000, cors: true };
+ *     const denoliver = await main(options)
+ *
+ * @param options Optional server config
+ */
+const main = async (args?: DenoliverOptions): Promise<Server> => {
+  if (args) {
+    setGlobals(args)
+  }
+
   if (help) {
     printHelp()
     Deno.exit()
   }
-  Object.keys(args).map((arg: string) => {
-    if (!isValidArg(arg)) {
-      error(`${arg} is not a valid flag.`)
-      printHelp()
-      Deno.exit()
-    }
 
-    if (args.p && !isValidPort(args.p)) {
-      error(`${args.p} is not a valid port.`)
+  if (port && !isValidPort(port)) {
+    error(`${port} is not a valid port.`)
+    Deno.exit()
+  }
+
+  secure && (await checkCredentials())
+
+  // In certain browsers the server will crash if Self-signed certificates are not allowed.
+  // Ref: https://github.com/denoland/deno/issues/5760
+  server = secure
+    ? serveTLS({
+        port: port,
+        certFile: `${root}/denoliver.crt`,
+        keyFile: `${root}/denoliver.key`,
+      })
+    : serve({ port })
+
+  console.log('Denoliver v1.0.0')
+  printStart(port, secure)
+  startListener(router)
+  return server
+}
+
+if (import.meta.main) {
+  const parsedArgs = parse(args, {
+    default: {
+      d: false,
+      s: false,
+      n: false,
+      p: 8080,
+      t: false,
+      c: false,
+    },
+  })
+
+  Object.keys(parsedArgs).map((arg: string) => {
+    if (!isValidArg(arg)) {
+      error(`${arg} is not a valid arg.`)
+      printHelp()
       Deno.exit()
     }
   })
 
-  secure && (await checkCredentials())
+  setGlobals({
+    root: parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.',
+    debug: parsedArgs.d,
+    silent: parsedArgs.s,
+    disableReload: parsedArgs.n,
+    port: parsedArgs.p,
+    secure: parsedArgs.t,
+    help: parsedArgs.h,
+    cors: parsedArgs.c,
+  })
 
-  secure
-    ? listenAndServeTLS(
-        {
-          port,
-          certFile: `${root}/denoliver.crt`,
-          keyFile: `${root}/denoliver.key`,
-        },
-        router,
-      )
-    : listenAndServe({ port }, router)
-
-  console.log('Denoliver v1.0.0')
-  printStart(port, secure)
-}
-
-if (import.meta.main) {
-  main(parsedArgs)
+  main()
 }
 
 export default main
