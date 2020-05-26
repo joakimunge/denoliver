@@ -39,6 +39,7 @@ let disableReload: boolean = false
 let secure: boolean = false
 let help: boolean = false
 let cors: boolean = false
+let entryPoint: string = 'index.html'
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -56,11 +57,14 @@ const handleFileRequest = async (req: ServerRequest) => {
 }
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
-  const file = await readFile(`${root}/index.html`)
+  const file = await readFile(`${root}/${entryPoint}`)
+  const { hostname, port } = req.conn.localAddr as Deno.NetAddr
   req.respond({
     status: 200,
     headers: setHeaders(cors),
-    body: disableReload ? file : appendReloadScript(file, port, secure),
+    body: disableReload
+      ? file
+      : appendReloadScript(file, port, hostname, secure),
   })
 }
 
@@ -97,6 +101,7 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
 
 const router = async (req: ServerRequest): Promise<void> => {
   printRequest(req)
+  console.log(req)
   if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
   }
@@ -161,6 +166,7 @@ interface DenoliverOptions {
   cors?: boolean
   secure?: boolean
   help?: boolean
+  entryPoint?: string
 }
 
 /**
@@ -213,6 +219,7 @@ if (import.meta.main) {
       p: 8080,
       t: false,
       c: false,
+      e: 'index.html',
     },
   })
 
@@ -233,6 +240,7 @@ if (import.meta.main) {
     secure: parsedArgs.t,
     help: parsedArgs.h,
     cors: parsedArgs.c,
+    entryPoint: parsedArgs.e,
   })
 
   main()
