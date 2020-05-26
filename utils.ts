@@ -85,7 +85,7 @@ export const printHelp = (): void => {
   `)
 }
 
-export const printStart = (port: number, secure: boolean): void => {
+export const printStart = (port: number, secure?: boolean): void => {
   const tcp = secure ? 'https' : 'http'
   console.log(
     `\n
