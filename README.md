@@ -29,9 +29,7 @@ Read about Deno and get it here: [Deno](https://deno.land/)
 - Supports HTTPS
 - Allows for programmatic use as a module
 
-## Getting started
-
-### Install Denoliver as an executable
+## Install Denoliver as an executable
 
 Install as a Deno executable.
 
@@ -55,14 +53,32 @@ From your project root / directory you want to serve
 $ denoliver
 ```
 
+### Options
+
+Denoliver comes with a couple of options to customize your experience.
+
+```s
+-h       # Help
+-n       # Disable live reload - Defaults to true
+-s       # Disable all logging - Defaults to false
+-p       # Specify desired port - Defaults to 8080
+-d       # Debug for more verbose logging - Defaults to false
+-t       # Use HTTPS - Requires a trusted self-signed certificate
+-c       # Use CORS - Defaults to false
+--entry  # Specify optional entrypoint - Defaults to index.html - Use: --entry=index.html
+```
+
 ## API
 
 Denoliver can also be used as a module in any Deno project.
+This exposes an instance of [Deno.Server](https://deno.land/std/http/server.ts#L125).
 
 ```typescript
 import denoliver from 'https://deno.land/x/denoliver/mod.ts'
 
 const server = denoliver({ port: 6060, cors: true })
+
+server.close() // Close the server
 ```
 
 Denoliver accepts an array of options should you like to include them:
@@ -81,31 +97,16 @@ DenoliverOptions {
 }
 ```
 
-### Serve over https
+## Serve over https
 
 To use HTTPS you will need a trusted self-signed certificate. If you're on macOS you can use [This](https://github.com/kingkool68/generate-ssl-certs-for-local-development) bash script to easily generate one.
 
 Name the cert and key files `denoliver.crt` and `denoliver.key` and place them in your working dir.
 
-### Options
-
-Denoliver comes with a couple of options to customize your experience.
-
-```s
--h       # Help
--n       # Disable live reload - Defaults to true
--s       # Disable all logging - Defaults to false
--p       # Specify desired port - Defaults to 8080
--d       # Debug for more verbose logging - Defaults to false
--t       # Use HTTPS - Requires a trusted self-signed certificate
--c       # Use CORS - Defaults to false
---entry  # Specify optional entrypoint - Defaults to index.html - Use: --entry=index.html
-```
-
-### Disclaimer
+## Disclaimer
 
 **This project is not intended for production use. It started out as a way for me personally to learn Deno, and is merely a tool to quickly get a file server up and running.**
 
-### Acknowledgements
+## Acknowledgements
 
 This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn)s fantastic [Servor](https://github.com/lukejacksonn/servor/)
