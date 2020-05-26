@@ -178,12 +178,10 @@ test('should be able to be used programmaticaly', async (): Promise<void> => {
   }
 })
 
-test('should be able to be used programmaticaly using HTTPS', async (): Promise<
-  void
-> => {
+test('options can be passed to the serve function', async (): Promise<void> => {
   try {
-    denoliver = await serve({ root: './demo', cors: true, secure: true })
-    const res = await fetch(`https://localhost:8080`)
+    denoliver = await serve({ root: './demo', cors: true, port: 3000 })
+    const res = await fetch(`http://localhost:3000`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -193,3 +191,21 @@ test('should be able to be used programmaticaly using HTTPS', async (): Promise<
     denoliver.close()
   }
 })
+
+// Re-enable this test when this has been resolved:
+// https://github.com/denoland/deno/issues/5760
+// test('should be able to be used programmaticaly using HTTPS', async (): Promise<
+//   void
+// > => {
+//   try {
+//     denoliver = await serve({ root: './demo', cors: true, secure: true })
+//     const res = await fetch(`https://localhost:8080`)
+//     const file = await res.text()
+//     assertEquals(res.status, 200)
+//     assert(res.headers.has('content-type'))
+//     assert(res.headers.has('access-control-allow-origin'))
+//     assert(file.includes(`<div id="denoliver">`))
+//   } finally {
+//     denoliver.close()
+//   }
+// })

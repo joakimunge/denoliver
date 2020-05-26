@@ -1,6 +1,5 @@
-#!/usr/bin/env -S deno run --allow-net
 const { args } = Deno
-import { parse, Args } from 'https://deno.land/std/flags/mod.ts'
+import { parse } from 'https://deno.land/std/flags/mod.ts'
 import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts'
 import {
   ServerRequest,
@@ -9,6 +8,7 @@ import {
   serveTLS,
 } from 'https://deno.land/std/http/server.ts'
 
+/* Denoliver utils */
 import {
   isRoute,
   isValidArg,
@@ -145,6 +145,7 @@ const main = async (args?: DenoliverArgs): Promise<Server> => {
   if (args) {
     setGlobals(args)
   }
+
   if (help) {
     printHelp()
     Deno.exit()
@@ -173,7 +174,9 @@ const main = async (args?: DenoliverArgs): Promise<Server> => {
   return server
 }
 
-const startListener = async (handler: any) => {
+const startListener = async (
+  handler: (req: ServerRequest) => void,
+): Promise<void> => {
   try {
     for await (const req of server) {
       handler(req)
@@ -183,7 +186,7 @@ const startListener = async (handler: any) => {
   }
 }
 
-const setGlobals = (args: DenoliverArgs) => {
+const setGlobals = (args: DenoliverArgs): void => {
   root = args.root ?? '.'
   debug = args.debug ?? false
   silent = args.silent ?? false
