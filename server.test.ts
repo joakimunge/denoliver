@@ -3,6 +3,8 @@ import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
 import { appendReloadScript } from './utils.ts'
+import serve from './mod.ts'
+import { Server } from 'https://deno.land/std/http/server.ts'
 
 let server: Deno.Process
 let port: number = 6060
@@ -157,5 +159,37 @@ test('when cors enabled response should have access control header', async (): P
     assert(file.includes(`<div id="denoliver">`))
   } finally {
     await tearDown()
+  }
+})
+
+/* Programmatic use */
+let denoliver: Server
+test('should be able to be used programmaticaly', async (): Promise<void> => {
+  try {
+    denoliver = await serve({ root: './demo', cors: true })
+    const res = await fetch(`http://localhost:8080`)
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(res.headers.has('access-control-allow-origin'))
+    assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    denoliver.close()
+  }
+})
+
+test('should be able to be used programmaticaly using HTTPS', async (): Promise<
+  void
+> => {
+  try {
+    denoliver = await serve({ root: './demo', cors: true, secure: true })
+    const res = await fetch(`https://localhost:8080`)
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(res.headers.has('access-control-allow-origin'))
+    assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    denoliver.close()
   }
 })
