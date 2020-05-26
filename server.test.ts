@@ -77,9 +77,10 @@ test('index.html should contain reload script', async (): Promise<void> => {
   try {
     const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
+    console.log(file)
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
-    assert(file.includes(appendReloadScript('', 6060, false)))
+    assert(file.includes(appendReloadScript('', 6060, '127.0.0.1', false)))
   } finally {
     await tearDown()
   }
@@ -94,7 +95,7 @@ test('given no reload option index.html should not contain reload script', async
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
-    assert(!file.includes(appendReloadScript('', 6060, false)))
+    assert(!file.includes(appendReloadScript('', 6060, '127.0.0.1', false)))
   } finally {
     await tearDown()
   }
