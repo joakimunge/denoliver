@@ -47,7 +47,7 @@ or if you're not happy with the name:
 $ deno install -n whateverNameYouWant --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
 ```
 
-### Running
+## Running
 
 From your project root / directory you want to serve
 
@@ -55,7 +55,7 @@ From your project root / directory you want to serve
 $ denoliver
 ```
 
-### Programmatic use
+## API
 
 Denoliver can also be used as a module in any Deno project.
 
@@ -63,6 +63,22 @@ Denoliver can also be used as a module in any Deno project.
 import denoliver from 'https://deno.land/x/denoliver/mod.ts'
 
 const server = denoliver({ port: 6060, cors: true })
+```
+
+Denoliver accepts an array of options should you like to include them:
+
+```typescript
+DenoliverOptions {
+  root?: string
+  port?: number
+  silent?: boolean
+  disableReload?: boolean
+  debug?: boolean
+  cors?: boolean
+  secure?: boolean
+  help?: boolean
+  entryPoint?: string
+}
 ```
 
 ### Serve over https
@@ -83,6 +99,7 @@ Denoliver comes with a couple of options to customize your experience.
 -d       # Debug for more verbose logging - Defaults to false
 -t       # Use HTTPS - Requires a trusted self-signed certificate
 -c       # Use CORS - Defaults to false
+--entry  # Specify optional entrypoint - Defaults to index.html - Use: --entry=index.html
 ```
 
 ### Disclaimer

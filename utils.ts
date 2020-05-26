@@ -7,7 +7,7 @@ import notFound from './404.ts'
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c']
+  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'entry']
   return args.includes(arg)
 }
 
@@ -46,13 +46,14 @@ export const setHeaders = (cors: boolean, path?: string): Headers => {
 export const appendReloadScript = (
   file: string,
   port: number,
+  hostname: string,
   secure: boolean,
 ): string => {
   const protocol = secure ? 'wss' : 'ws'
   return (
     file +
     `<script>
-  const socket = new WebSocket('${protocol}://localhost:${port}');
+  const socket = new WebSocket('${protocol}://${hostname}:${port}');
   socket.onopen = () => {
     console.log('Socket connection open. Listening for events.');
   };
@@ -77,11 +78,12 @@ export const printHelp = (): void => {
   OPTIONS | <default>
   -h -- Help
   -p -- Port | 8080
-  -n -- Live Reload | true
+  -n -- Disable Live Reload | false
   -s -- Silent | false
   -d -- Debug | false
   -t -- Use HTTPS - Requires trusted self signed certificate | false
   -c -- Allow CORS | false
+  --entry -- Specify entrypoint | index.html
   `)
 }
 
