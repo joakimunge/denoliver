@@ -22,7 +22,7 @@ import {
   isValidPort,
   inject404,
   setHeaders,
-} from './utils.ts'
+} from './utils/utils.ts'
 
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>

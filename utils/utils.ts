@@ -1,8 +1,8 @@
 import { extname } from 'https://deno.land/std/path/mod.ts'
 import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
-import mimes from './mimes.ts'
-import notFound from './404.ts'
+import mimes from '../mimes.ts'
+import notFound from '../404.ts'
 
 /* CLI Utils */
 
