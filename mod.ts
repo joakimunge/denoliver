@@ -23,13 +23,11 @@ import {
   inject404,
   setHeaders,
   encode,
-  decode,
   info,
   prompt,
 } from './utils/utils.ts'
 
-import boiler from './utils/boilerplate.ts'
-import { bold, green } from 'https://deno.land/std/fmt/colors.ts'
+import { html, css } from './utils/boilerplate.ts'
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
@@ -218,9 +216,11 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
 
 const makeBoilerplate = async (path: string, name: string) => {
   await Deno.mkdir(`${path}/${name}`, { recursive: true })
-  const html = boiler(name)
-  const data = encode(html)
-  await Deno.writeFile(`${path}/${name}/index.html`, data)
+  const htmlData = encode(html(name))
+  const cssData = encode(css())
+  await Deno.writeFile(`${path}/${name}/index.html`, htmlData)
+  await Deno.writeFile(`${path}/${name}/index.html`, cssData)
+  await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
 }
 
 if (import.meta.main) {
@@ -264,7 +264,7 @@ if (import.meta.main) {
       const answer = await prompt(
         `The directory ${root} does not exist. Do you wish to create it? [y/n]`,
       )
-      if (answer === 'y') {
+      if (answer === 'y' || 'Y') {
         await makeBoilerplate(cwd, root)
       } else {
         info('Exiting.')

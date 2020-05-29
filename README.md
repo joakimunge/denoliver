@@ -11,38 +11,35 @@
 
 ---
 
-**Denoliver** is a small, simple, no config static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
-
-_**This project can not be run on Node.js**_
+**Denoliver** is a small, zero config static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
 
 ## Prerequisites
 
-### To run this you need to have Deno 1.0 or later installed.
-
-Read about Deno and get it here: [Deno](https://deno.land/)
+### To run this you need to have [Deno](https://deno.land/) 1.0 or later installed.
 
 ## Key Features
 
-- Dependency free! No third party dependencies. Only Deno Std Lib
+- Dependency free! No third party dependencies.
 - Live reload of modified files.
-- Supports client side routing
+- Supports client side routing for Single Page Applications.
 - Supports HTTPS
 - Allows for programmatic use as a module
+- Boilerplating for rapid prototyping.
 
 ## Install Denoliver as an executable
 
 Install as a Deno executable.
 
-> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net` and `--allow-read` flags to make sure Denoliver can serve your directory.
+> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read` and `--allow-write` flags to make sure Denoliver can serve your directory.
 
 ```
-$ deno install --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
+$ deno install --allow-net --allow-read --allow-write https://deno.land/x/denoliver/mod.ts
 ```
 
 or if you're not happy with the name:
 
 ```
-$ deno install -n whateverNameYouWant --allow-net --allow-read https://deno.land/x/denoliver/mod.ts
+$ deno install -n whateverNameYouWant --allow-net --allow-read --allow-write https://deno.land/x/denoliver/mod.ts
 ```
 
 ## Running
@@ -59,14 +56,22 @@ Denoliver comes with a couple of options to customize your experience.
 
 ```s
 -h       # Help
--n       # Disable live reload - Defaults to true
--s       # Disable all logging - Defaults to false
+-n       # Disable live reload - Defaults to false
+-s       # Disable all output - Defaults to false
 -p       # Specify desired port - Defaults to 8080
--d       # Debug for more verbose logging - Defaults to false
+-d       # Debug for more verbose output - Defaults to false
 -t       # Use HTTPS - Requires a trusted self-signed certificate
 -c       # Use CORS - Defaults to false
 --entry  # Specify optional entrypoint - Defaults to index.html - Use: --entry=index.html
 ```
+
+### Optional boilerplating
+
+If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an `index.html` and serve it for you.
+
+<p align="center">
+  <img src="media/boiler.png" title="Denoliver" alt="It's a liver" width="530">
+</p>
 
 ## API
 
@@ -97,7 +102,7 @@ DenoliverOptions {
 }
 ```
 
-## Serve over https
+## Serve over HTTPS
 
 To use HTTPS you will need a trusted self-signed certificate. If you're on macOS you can use [This](https://github.com/kingkool68/generate-ssl-certs-for-local-development) bash script to easily generate one.
 
