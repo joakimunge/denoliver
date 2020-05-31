@@ -209,7 +209,6 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
       })
     : serve({ port })
 
-  console.log('Denoliver v1.0.0')
   printStart(root, port, secure)
   startListener(router)
   return server

@@ -39,7 +39,7 @@ async function setup(args?: Args): Promise<void> {
   assert(server.stdout != null)
   const r = new TextProtoReader(new BufReader(server.stdout))
   const s = await r.readLine()
-  assert(s !== null && s.includes('Denoliver v1.0.0'))
+  assert(s !== null)
 }
 
 async function tearDown(): Promise<void> {
@@ -49,11 +49,11 @@ async function tearDown(): Promise<void> {
 }
 
 test('should serve on given port', async (): Promise<void> => {
-  await setup({ _: ['./demo'], p: 7000 })
+  await setup({ _: ['./demo'], p: 7001 })
   try {
     const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
-    assertEquals(port, 7000)
+    assertEquals(port, 7001)
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
   } finally {
