@@ -75,10 +75,29 @@ If the given directory doesn't exist, denoliver will ask you if you want to crea
 ├── app.js
 ```
 
+## Configuration
+
+If you want, you can place a configuration file called `denoliver.json` in the folder you are serving to avoid having to use command line arguments to customize its behaviour. By default it will look like this:
+
+```JSON
+{
+  "root": ".",
+  "port": 8080,
+  "disableReload": false,
+  "silent": false,
+  "debug": false,
+  "secure": false,
+  "cors": false,
+  "entryPoint": "index.html"
+}
+```
+
 ## API
 
 Denoliver can also be used as a module in any Deno project.
 This exposes an instance of [Deno.Server](https://deno.land/std/http/server.ts#L125).
+
+The main function accepts the same config object as specified in the config file above.
 
 ```typescript
 import denoliver from 'https://deno.land/x/denoliver/mod.ts'
@@ -86,41 +105,6 @@ import denoliver from 'https://deno.land/x/denoliver/mod.ts'
 const server = denoliver({ port: 6060, cors: true })
 
 server.close() // Close the server
-```
-
-### Customization
-
-Denoliver accepts an array of options should you like to include them.
-
-```typescript
-DenoliverOptions {
-  root?: string
-  port?: number
-  silent?: boolean
-  disableReload?: boolean
-  debug?: boolean
-  cors?: boolean
-  secure?: boolean
-  help?: boolean
-  entryPoint?: string
-}
-```
-
-### Config file
-
-If you want, you can place a configuration file called `denoliver.json` in the folder you are serving to avoid having to use command line arguments. By default it will look like this:
-
-```JSON
-{
-  "root": ".",
-  "disableReload": false,
-  "silent": false,
-  "port": 8080,
-  "debug": false,
-  "secure": false,
-  "cors": false,
-  "entryPoint": "index.html"
-}
 ```
 
 ## Serve over HTTPS
