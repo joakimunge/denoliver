@@ -67,11 +67,13 @@ Denoliver comes with a couple of options to customize your experience.
 
 ### Optional boilerplating
 
-If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an `index.html` and serve it for you.
+If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an a basic project folder and serve it for you.
 
-<p align="center">
-  <img src="media/boiler.png" title="Denoliver" alt="It's a liver" width="530">
-</p>
+```
+├── index.html
+├── index.css
+├── app.js
+```
 
 ## API
 
@@ -115,3 +117,7 @@ Name the cert and key files `denoliver.crt` and `denoliver.key` and place them i
 ## Acknowledgements
 
 This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn)s fantastic [Servor](https://github.com/lukejacksonn/servor/)
+
+```
+
+```
