@@ -5,8 +5,8 @@ export const html = (name: string) =>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="index.css">
     <title>${name}</title>
+    <link rel="stylesheet" type="text/css" href="./index.css">
   </head>
   <body>
   <div id="denoliver">
@@ -24,7 +24,8 @@ export const html = (name: string) =>
 
 `
 
-export const css = () => `  html,
+export const css = () => `
+html,
 body {
   height: 100%;
   width: 100%;

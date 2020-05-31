@@ -219,7 +219,7 @@ const makeBoilerplate = async (path: string, name: string) => {
   const htmlData = encode(html(name))
   const cssData = encode(css())
   await Deno.writeFile(`${path}/${name}/index.html`, htmlData)
-  await Deno.writeFile(`${path}/${name}/index.html`, cssData)
+  await Deno.writeFile(`${path}/${name}/index.css`, cssData)
   await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
 }
 
