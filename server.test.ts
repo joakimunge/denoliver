@@ -2,7 +2,7 @@ import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
-import { appendReloadScript } from './utils.ts'
+import { appendReloadScript } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server } from 'https://deno.land/std/http/server.ts'
 

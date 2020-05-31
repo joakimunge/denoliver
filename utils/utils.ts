@@ -1,8 +1,8 @@
 import { extname } from 'https://deno.land/std/path/mod.ts'
 import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
-import mimes from './mimes.ts'
-import notFound from './404.ts'
+import mimes from '../mimes.ts'
+import notFound from '../404.ts'
 
 /* CLI Utils */
 
@@ -13,6 +13,22 @@ export const isValidArg = (arg: string): boolean => {
 
 export const isValidPort = (port: any): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
+
+export const prompt = async (body: string = '') => {
+  const buf = new Uint8Array(1024)
+  await Deno.stdout.write(encode(`${bold(green(`\n${body}`))}`))
+  const n = (await Deno.stdin.read(buf)) as number
+  const answer = decode(buf.subarray(0, n))
+  return answer.trim()
+}
+
+/* Encode / Decode */
+
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
+
+export const encode = (x: string) => encoder.encode(x)
+export const decode = (x: Uint8Array) => decoder.decode(x)
 
 /* Server utils */
 
@@ -50,6 +66,7 @@ export const appendReloadScript = (
   secure: boolean,
 ): string => {
   const protocol = secure ? 'wss' : 'ws'
+  console.log(file)
   return (
     file +
     `<script>
@@ -87,13 +104,17 @@ export const printHelp = (): void => {
   `)
 }
 
-export const printStart = (port: number, secure?: boolean): void => {
+export const printStart = (
+  root: string,
+  port: number,
+  secure?: boolean,
+): void => {
   const tcp = secure ? 'https' : 'http'
   console.log(
     `\n
   ${bold(green('🦕  🚚 Denoliver'))}
 
-  ${bold(blue(`Serving on ${tcp}://localhost:${port}`))}
+  ${bold(blue(`Serving ${root} on ${tcp}://localhost:${port}`))}
   
   `,
   )
@@ -108,5 +129,5 @@ export const warn = (msg: string) => {
 }
 
 export const info = (msg: string) => {
-  console.log(`${bold(green(`\nINFO: ${msg}`))}`)
+  console.log(`${bold(green(`\n${msg}`))}`)
 }

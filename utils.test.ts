@@ -5,7 +5,7 @@ import {
   isValidPort,
   isValidArg,
   readFile,
-} from './utils.ts'
+} from './utils/utils.ts'
 
 /* Utils */
 
