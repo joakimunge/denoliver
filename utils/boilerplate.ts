@@ -19,7 +19,7 @@ export const html = (name: string) =>
     </div>
   </div>
 </body>
-<script type="text/javascript" src="./app.js" />
+<script type="text/javascript" src="./app.js"></script>
 </html>
 
 `
