@@ -67,7 +67,7 @@ Denoliver comes with a couple of options to customize your experience.
 
 ### Optional boilerplating
 
-If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an a basic project folder and serve it for you.
+If the given directory doesn't exist, denoliver will ask you if you want to create a boilerplate. This will generate an a basic project folder and serve it for you. Very useful to get up and running quickly.
 
 ```
 ├── index.html
