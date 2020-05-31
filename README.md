@@ -55,14 +55,14 @@ $ denoliver
 Denoliver comes with a couple of options to customize your experience.
 
 ```s
--h       # Help
--n       # Disable live reload - Defaults to false
--s       # Disable all output - Defaults to false
--p       # Specify desired port - Defaults to 8080
--d       # Debug for more verbose output - Defaults to false
--t       # Use HTTPS - Requires a trusted self-signed certificate
--c       # Use CORS - Defaults to false
---entry  # Specify optional entrypoint - Defaults to index.html - Use: --entry=index.html
+-h                 # Help
+-n                 # Disable live reload - Defaults to false
+-s                 # Disable all output - Defaults to false
+-p <PORT>          # Specify desired port - Defaults to 8080
+-d                 # Debug for more verbose output - Defaults to false
+-t                 # Use HTTPS - Requires a trusted self-signed certificate
+-c                 # Use CORS - Defaults to false
+--entry=<..>       # Specify optional entrypoint - Defaults to index.htmll
 ```
 
 ### Optional boilerplating
@@ -88,7 +88,9 @@ const server = denoliver({ port: 6060, cors: true })
 server.close() // Close the server
 ```
 
-Denoliver accepts an array of options should you like to include them:
+### Customization
+
+Denoliver accepts an array of options should you like to include them.
 
 ```typescript
 DenoliverOptions {
@@ -101,6 +103,23 @@ DenoliverOptions {
   secure?: boolean
   help?: boolean
   entryPoint?: string
+}
+```
+
+### Config file
+
+If you want, you can place a configuration file called `denoliver.json` in the folder you are serving to avoid having to use command line arguments. By default it will look like this:
+
+```JSON
+{
+  "root": ".",
+  "disableReload": false,
+  "silent": false,
+  "port": 8080,
+  "debug": false,
+  "secure": false,
+  "cors": false,
+  "entryPoint": "index.html"
 }
 ```
 
@@ -117,7 +136,3 @@ Name the cert and key files `denoliver.crt` and `denoliver.key` and place them i
 ## Acknowledgements
 
 This project was heavily inspired by [lukejacksonn](https://github.com/lukejacksonn)s fantastic [Servor](https://github.com/lukejacksonn/servor/)
-
-```
-
-```

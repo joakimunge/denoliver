@@ -23,6 +23,7 @@ import {
   inject404,
   setHeaders,
   encode,
+  decode,
   info,
   prompt,
 } from './utils/utils.ts'
@@ -255,6 +256,11 @@ if (import.meta.main) {
     cors: parsedArgs.c,
     entryPoint: parsedArgs.entry,
   })
+
+  try {
+    const config = await Deno.readFile(`${root}/denoliver.json`)
+    setGlobals(JSON.parse(decode(config)))
+  } catch (err) {}
 
   const cwd = Deno.cwd()
   try {
