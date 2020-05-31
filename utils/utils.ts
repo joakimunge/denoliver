@@ -66,7 +66,6 @@ export const appendReloadScript = (
   secure: boolean,
 ): string => {
   const protocol = secure ? 'wss' : 'ws'
-  console.log(file)
   return (
     file +
     `<script>

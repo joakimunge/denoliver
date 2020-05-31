@@ -1,0 +1,10 @@
+{
+  "root": "/some/path",
+  "disableReload": false,
+  "silent": false,
+  "port": 8080,
+  "debug": false,
+  "secure": false,
+  "cors": false,
+  "entryPoint": "index.html"
+}
