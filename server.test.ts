@@ -2,7 +2,7 @@ import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
-import { appendReloadScript } from './utils/utils.ts'
+import { appendReloadScript, encode } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server } from 'https://deno.land/std/http/server.ts'
 
@@ -16,6 +16,7 @@ async function setup(args?: Args): Promise<void> {
     'run',
     '--allow-read',
     '--allow-net',
+    '--allow-write',
     './mod.ts',
     './demo',
   ]
@@ -27,6 +28,7 @@ async function setup(args?: Args): Promise<void> {
   } else {
     port = 6060
   }
+
   cmd.push(`-p${port}`)
 
   server = await Deno.run({
@@ -77,7 +79,6 @@ test('index.html should contain reload script', async (): Promise<void> => {
   try {
     const res = await fetch(`http://localhost:${port}`)
     const file = await res.text()
-    console.log(file)
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
     assert(file.includes(appendReloadScript('', 6060, '127.0.0.1', false)))
@@ -190,6 +191,38 @@ test('options can be passed to the serve function', async (): Promise<void> => {
     assert(file.includes(`<div id="denoliver">`))
   } finally {
     denoliver.close()
+  }
+})
+
+test('options are read from config file if it exists', async (): Promise<
+  void
+> => {
+  const config = `
+  {
+    "root": "./demo",
+    "disableReload": true,
+    "silent": false,
+    "port": 5000,
+    "debug": false,
+    "secure": false,
+    "cors": true,
+    "entryPoint": "index.html"
+  }
+  `
+  const encoded = encode(config)
+  await Deno.writeFile(`./demo/denoliver.json`, encoded)
+  await setup()
+
+  try {
+    const res = await fetch(`http://localhost:5000`)
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(res.headers.has('access-control-allow-origin'))
+    assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    await Deno.remove(`./demo/denoliver.json`)
+    await tearDown()
   }
 })
 
