@@ -29,6 +29,8 @@ import {
 } from './utils/utils.ts'
 
 import { html, css } from './utils/boilerplate.ts'
+import dirTemplate from './directory.ts'
+
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
@@ -44,6 +46,7 @@ let disableReload: boolean = false
 let secure: boolean = false
 let help: boolean = false
 let cors: boolean = false
+let list: boolean = false
 let entryPoint: string = 'index.html'
 
 const handleFileRequest = async (req: ServerRequest) => {
@@ -70,6 +73,21 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     body: disableReload
       ? file
       : appendReloadScript(file, port, hostname, secure),
+  })
+}
+
+const handleDirRequest = async (req: ServerRequest): Promise<void> => {
+  const path = root + req.url
+  const entries = []
+  for await (const entry of Deno.readDir(path)) {
+    const filePath = path + '/' + entry.name
+    entries.push(filePath)
+  }
+
+  req.respond({
+    status: 200,
+    body: encode(dirTemplate(entries)),
+    headers: setHeaders(cors),
   })
 }
 
@@ -111,14 +129,24 @@ const router = async (req: ServerRequest): Promise<void> => {
   }
   try {
     const path = root + req.url
-
     if (isRoute(path)) {
+      if (list) {
+        try {
+          const fileInfo = await Deno.stat(path)
+          if (fileInfo.isDirectory) {
+            return handleDirRequest(req)
+          }
+        } catch (err) {
+          error(err)
+        }
+      }
       return handleRouteRequest(req)
     }
 
     if (req.method === 'GET' && req.url === '/') {
       return handleRouteRequest(req)
     }
+
     return handleFileRequest(req)
   } catch (err) {
     !silent && debug ? console.log(err) : error(err.message)
@@ -159,6 +187,7 @@ const setGlobals = (args: DenoliverOptions): void => {
   port = args.port ?? 8080
   secure = args.secure ?? false
   cors = args.cors ?? false
+  list = args.list ?? false
   entryPoint = args.entryPoint ?? 'index.html'
 }
 
@@ -171,6 +200,7 @@ interface DenoliverOptions {
   cors?: boolean
   secure?: boolean
   help?: boolean
+  list?: boolean
   entryPoint?: string
 }
 
@@ -232,6 +262,7 @@ if (import.meta.main) {
       p: 8080,
       t: false,
       c: false,
+      l: false,
       entry: 'index.html',
     },
   })
@@ -253,6 +284,7 @@ if (import.meta.main) {
     secure: parsedArgs.t,
     help: parsedArgs.h,
     cors: parsedArgs.c,
+    list: parsedArgs.l,
     entryPoint: parsedArgs.entry,
   })
 

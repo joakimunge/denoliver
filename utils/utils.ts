@@ -7,7 +7,7 @@ import notFound from '../404.ts'
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'entry']
+  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'l', 'entry']
   return args.includes(arg)
 }
 
@@ -99,6 +99,7 @@ export const printHelp = (): void => {
   -d -- Debug | false
   -t -- Use HTTPS - Requires trusted self signed certificate | false
   -c -- Allow CORS | false
+  -l -- Use Directory Listings (Disables SPA routing)
   --entry -- Specify entrypoint | index.html
   `)
 }
