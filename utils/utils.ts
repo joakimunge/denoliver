@@ -32,6 +32,8 @@ export const decode = (x: Uint8Array) => decoder.decode(x)
 
 /* Server utils */
 
+export const joinPath = (root: string, url: string): string => root + url
+
 export const contentType = (path: string): string => {
   const ext = String(extname(path)).toLowerCase()
   return mimes[ext] || 'application/octet-stream'

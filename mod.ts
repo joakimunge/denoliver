@@ -26,6 +26,7 @@ import {
   decode,
   info,
   prompt,
+  joinPath,
 } from './utils/utils.ts'
 
 import { html, css } from './utils/boilerplate.ts'
@@ -51,7 +52,7 @@ let entryPoint: string = 'index.html'
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
-    const path = root + req.url
+    const path = joinPath(root, req.url)
     const file = await Deno.open(path)
     return req.respond({
       status: 200,
@@ -77,7 +78,7 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
 }
 
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
-  const path = root + req.url
+  const path = joinPath(root, req.url)
   const entries = []
   for await (const entry of Deno.readDir(path)) {
     const filePath = path + '/' + entry.name
@@ -128,7 +129,7 @@ const router = async (req: ServerRequest): Promise<void> => {
     return await handleWs(req)
   }
   try {
-    const path = root + req.url
+    const path = joinPath(root, req.url)
     if (isRoute(path)) {
       if (list) {
         try {
@@ -137,7 +138,7 @@ const router = async (req: ServerRequest): Promise<void> => {
             return handleDirRequest(req)
           }
         } catch (err) {
-          error(err)
+          throw err
         }
       }
       return handleRouteRequest(req)
@@ -149,6 +150,7 @@ const router = async (req: ServerRequest): Promise<void> => {
 
     return handleFileRequest(req)
   } catch (err) {
+    err instanceof Deno.errors.NotFound && handleNotFound(req)
     !silent && debug ? console.log(err) : error(err.message)
   }
 }
@@ -297,7 +299,7 @@ if (import.meta.main) {
   try {
     Deno.readDirSync(`${cwd}/${root}`)
   } catch (err) {
-    if (err.name === 'NotFound') {
+    if (err instanceof Deno.errors.NotFound) {
       const answer = await prompt(
         `The directory ${root} does not exist. Do you wish to create it? [y/n]`,
       )
