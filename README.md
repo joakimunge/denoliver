@@ -22,6 +22,7 @@
 - Dependency free! No third party dependencies.
 - Live reload of modified files.
 - Supports client side routing for Single Page Applications.
+- Directory lists
 - Supports HTTPS
 - Allows for programmatic use as a module
 - Boilerplating for rapid prototyping.
