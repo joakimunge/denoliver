@@ -93,6 +93,10 @@ a::before {
   transition: 0.3s cubic-bezier(0.17, 0.67, 0.16, 0.99);
 }
 
+.directory::after {
+  content:"/";
+}
+
 a:hover::before {
   height: 100%;
   transition: 0.3s cubic-bezier(0.17, 0.67, 0.16, 0.99);
