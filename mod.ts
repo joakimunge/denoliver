@@ -68,15 +68,20 @@ const handleFileRequest = async (req: ServerRequest) => {
 }
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
-  const file = await readFile(`${root}/${entryPoint}`)
-  const { hostname, port } = req.conn.localAddr as Deno.NetAddr
-  req.respond({
-    status: 200,
-    headers: setHeaders(cors),
-    body: disableReload
-      ? file
-      : appendReloadScript(file, port, hostname, secure),
-  })
+  try {
+    const file = await readFile(`${root}/${entryPoint}`)
+    const { hostname, port } = req.conn.localAddr as Deno.NetAddr
+    req.respond({
+      status: 200,
+      headers: setHeaders(cors),
+      body: disableReload
+        ? file
+        : appendReloadScript(file, port, hostname, secure),
+    })
+  } catch (err) {
+    !silent && debug ? console.error(err) : error(err.message)
+    handleDirRequest(req)
+  }
 }
 
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
