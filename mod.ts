@@ -7,6 +7,7 @@ import {
   Server,
   serveTLS,
 } from 'https://deno.land/std/http/server.ts'
+import { posix } from 'https://deno.land/std/path/mod.ts'
 
 /* Denoliver utils */
 import {
@@ -26,9 +27,13 @@ import {
   decode,
   info,
   prompt,
+  joinPath,
+  DirEntry,
 } from './utils/utils.ts'
 
 import { html, css } from './utils/boilerplate.ts'
+import dirTemplate from './directory.ts'
+
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
@@ -44,11 +49,12 @@ let disableReload: boolean = false
 let secure: boolean = false
 let help: boolean = false
 let cors: boolean = false
+let list: boolean = false
 let entryPoint: string = 'index.html'
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
-    const path = root + req.url
+    const path = joinPath(root, req.url)
     const file = await Deno.open(path)
     return req.respond({
       status: 200,
@@ -70,6 +76,22 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
     body: disableReload
       ? file
       : appendReloadScript(file, port, hostname, secure),
+  })
+}
+
+const handleDirRequest = async (req: ServerRequest): Promise<void> => {
+  const path = joinPath(root, req.url)
+  const dirUrl = `/${posix.relative(root, path)}`
+  const entries: DirEntry[] = []
+  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
+    const filePath = posix.join(dirUrl, '/', entry.name)
+    entries.push({ ...entry, url: decodeURIComponent(filePath) })
+  }
+
+  req.respond({
+    status: 200,
+    body: encode(dirTemplate(entries, dirUrl)),
+    headers: setHeaders(cors),
   })
 }
 
@@ -109,18 +131,29 @@ const router = async (req: ServerRequest): Promise<void> => {
   if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
   }
+  if (req.method === 'GET' && req.url === '/') {
+    return handleRouteRequest(req)
+  }
   try {
-    const path = root + req.url
-
+    const path = joinPath(root, req.url)
     if (isRoute(path)) {
+      if (list) {
+        try {
+          const fileInfo = await Deno.stat(path)
+
+          if (fileInfo.isDirectory) {
+            return handleDirRequest(req)
+          }
+        } catch (err) {
+          throw err
+        }
+      }
       return handleRouteRequest(req)
     }
 
-    if (req.method === 'GET' && req.url === '/') {
-      return handleRouteRequest(req)
-    }
     return handleFileRequest(req)
   } catch (err) {
+    err instanceof Deno.errors.NotFound && handleNotFound(req)
     !silent && debug ? console.log(err) : error(err.message)
   }
 }
@@ -133,14 +166,14 @@ const checkCredentials = async () => {
     !silent && debug
       ? console.error(err)
       : error(
-          'Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.',
+          'Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.'
         )
     Deno.exit()
   }
 }
 
 const startListener = async (
-  handler: (req: ServerRequest) => void,
+  handler: (req: ServerRequest) => void
 ): Promise<void> => {
   try {
     for await (const req of server) {
@@ -159,6 +192,7 @@ const setGlobals = (args: DenoliverOptions): void => {
   port = args.port ?? 8080
   secure = args.secure ?? false
   cors = args.cors ?? false
+  list = args.list ?? false
   entryPoint = args.entryPoint ?? 'index.html'
 }
 
@@ -171,6 +205,7 @@ interface DenoliverOptions {
   cors?: boolean
   secure?: boolean
   help?: boolean
+  list?: boolean
   entryPoint?: string
 }
 
@@ -232,6 +267,7 @@ if (import.meta.main) {
       p: 8080,
       t: false,
       c: false,
+      l: false,
       entry: 'index.html',
     },
   })
@@ -253,6 +289,7 @@ if (import.meta.main) {
     secure: parsedArgs.t,
     help: parsedArgs.h,
     cors: parsedArgs.c,
+    list: parsedArgs.l,
     entryPoint: parsedArgs.entry,
   })
 
@@ -265,9 +302,9 @@ if (import.meta.main) {
   try {
     Deno.readDirSync(`${cwd}/${root}`)
   } catch (err) {
-    if (err.name === 'NotFound') {
+    if (err instanceof Deno.errors.NotFound) {
       const answer = await prompt(
-        `The directory ${root} does not exist. Do you wish to create it? [y/n]`,
+        `The directory ${root} does not exist. Do you wish to create it? [y/n]`
       )
       if (answer === 'y' || 'Y') {
         await makeBoilerplate(cwd, root)

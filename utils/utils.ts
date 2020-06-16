@@ -7,7 +7,7 @@ import notFound from '../404.ts'
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'entry']
+  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'l', 'entry']
   return args.includes(arg)
 }
 
@@ -32,13 +32,16 @@ export const decode = (x: Uint8Array) => decoder.decode(x)
 
 /* Server utils */
 
+export const joinPath = (root: string, url: string): string => root + url
+
 export const contentType = (path: string): string => {
   const ext = String(extname(path)).toLowerCase()
   return mimes[ext] || 'application/octet-stream'
 }
 
 export const isRoute = (path: string) => {
-  const last = path.split('/').pop()
+  const withoutTrailing = path.replace(/\/+$/, '')
+  const last = withoutTrailing.split('/').pop()
   return last && !~last.indexOf('.')
 }
 
@@ -63,7 +66,7 @@ export const appendReloadScript = (
   file: string,
   port: number,
   hostname: string,
-  secure: boolean,
+  secure: boolean
 ): string => {
   const protocol = secure ? 'wss' : 'ws'
   return (
@@ -99,6 +102,7 @@ export const printHelp = (): void => {
   -d -- Debug | false
   -t -- Use HTTPS - Requires trusted self signed certificate | false
   -c -- Allow CORS | false
+  -l -- Use Directory Listings (Disables SPA routing)
   --entry -- Specify entrypoint | index.html
   `)
 }
@@ -106,7 +110,7 @@ export const printHelp = (): void => {
 export const printStart = (
   root: string,
   port: number,
-  secure?: boolean,
+  secure?: boolean
 ): void => {
   const tcp = secure ? 'https' : 'http'
   console.log(
@@ -115,7 +119,7 @@ export const printStart = (
 
   ${bold(blue(`Serving ${root} on ${tcp}://localhost:${port}`))}
   
-  `,
+  `
   )
 }
 
@@ -129,4 +133,8 @@ export const warn = (msg: string) => {
 
 export const info = (msg: string) => {
   console.log(`${bold(green(`\n${msg}`))}`)
+}
+
+export interface DirEntry extends Deno.DirEntry {
+  url: string
 }
