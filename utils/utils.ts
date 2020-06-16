@@ -11,7 +11,7 @@ export const isValidArg = (arg: string): boolean => {
   return args.includes(arg)
 }
 
-export const isValidPort = (port: number): boolean =>
+export const isValidPort = (port: any): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
 
 export const prompt = async (body: string = '') => {
