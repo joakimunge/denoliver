@@ -26,6 +26,14 @@
 - Allows for programmatic use as a module
 - Boilerplating for rapid prototyping.
 
+## Directory Listing
+
+Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
+
+<p align="center">
+  <img src="media/list.png">
+</p>
+
 ## Install Denoliver as an executable
 
 Install as a Deno executable.

@@ -11,7 +11,7 @@ export const isValidArg = (arg: string): boolean => {
   return args.includes(arg)
 }
 
-export const isValidPort = (port: any): boolean =>
+export const isValidPort = (port: number): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
 
 export const prompt = async (body: string = '') => {
@@ -40,7 +40,8 @@ export const contentType = (path: string): string => {
 }
 
 export const isRoute = (path: string) => {
-  const last = path.split('/').pop()
+  const withoutTrailing = path.replace(/\/+$/, '')
+  const last = withoutTrailing.split('/').pop()
   return last && !~last.indexOf('.')
 }
 
@@ -65,7 +66,7 @@ export const appendReloadScript = (
   file: string,
   port: number,
   hostname: string,
-  secure: boolean,
+  secure: boolean
 ): string => {
   const protocol = secure ? 'wss' : 'ws'
   return (
@@ -109,7 +110,7 @@ export const printHelp = (): void => {
 export const printStart = (
   root: string,
   port: number,
-  secure?: boolean,
+  secure?: boolean
 ): void => {
   const tcp = secure ? 'https' : 'http'
   console.log(
@@ -118,7 +119,7 @@ export const printStart = (
 
   ${bold(blue(`Serving ${root} on ${tcp}://localhost:${port}`))}
   
-  `,
+  `
   )
 }
 
@@ -132,4 +133,8 @@ export const warn = (msg: string) => {
 
 export const info = (msg: string) => {
   console.log(`${bold(green(`\n${msg}`))}`)
+}
+
+export interface DirEntry extends Deno.DirEntry {
+  url: string
 }
