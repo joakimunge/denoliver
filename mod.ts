@@ -56,6 +56,9 @@ const handleFileRequest = async (req: ServerRequest) => {
   try {
     const path = joinPath(root, req.url)
     const file = await Deno.open(path)
+    req.done.then(() => {
+      file.close()
+    })
     return req.respond({
       status: 200,
       headers: setHeaders(cors, path),
@@ -166,14 +169,14 @@ const checkCredentials = async () => {
     !silent && debug
       ? console.error(err)
       : error(
-          'Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.'
+          'Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.',
         )
     Deno.exit()
   }
 }
 
 const startListener = async (
-  handler: (req: ServerRequest) => void
+  handler: (req: ServerRequest) => void,
 ): Promise<void> => {
   try {
     for await (const req of server) {
@@ -304,7 +307,7 @@ if (import.meta.main) {
   } catch (err) {
     if (err instanceof Deno.errors.NotFound) {
       const answer = await prompt(
-        `The directory ${root} does not exist. Do you wish to create it? [y/n]`
+        `The directory ${root} does not exist. Do you wish to create it? [y/n]`,
       )
       if (answer === 'y' || 'Y') {
         await makeBoilerplate(cwd, root)
