@@ -87,6 +87,7 @@ test('handleDirRequest should return a directory if list is true', async (): Pro
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
     assert(file.includes(`<title>denoliver - /src</title>`))
+    assert(file.includes(`test.md`))
   } finally {
     await tearDown()
   }
