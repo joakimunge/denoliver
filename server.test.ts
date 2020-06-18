@@ -6,7 +6,7 @@ import { appendReloadScript, encode } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server } from 'https://deno.land/std/http/server.ts'
 
-let server: Deno.Process
+let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
 let port: number = 6060
 const { test } = Deno
 
@@ -23,6 +23,8 @@ async function setup(args?: Args): Promise<void> {
 
   args && args.c && cmd.push('-c')
   args && args.n && cmd.push('-n')
+  args && args.l && cmd.push('-l')
+
   if (args && args.p) {
     port = args.p
   } else {
@@ -36,6 +38,7 @@ async function setup(args?: Args): Promise<void> {
     stdout: 'piped',
     stderr: 'null',
   })
+  if (!server.stdout) throw Error
   assert(server.stdout != null)
   const r = new TextProtoReader(new BufReader(server.stdout))
   const s = await r.readLine()
@@ -69,6 +72,21 @@ test('handleRouteRequest should return index.html', async (): Promise<void> => {
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
     assert(file.includes(`<div id="denoliver">`))
+  } finally {
+    await tearDown()
+  }
+})
+
+test('handleDirRequest should return a directory if list is true', async (): Promise<
+  void
+> => {
+  await setup({ _: ['./demo'], l: true })
+  try {
+    const res = await fetch(`http://localhost:${port}/src`)
+    const file = await res.text()
+    assertEquals(res.status, 200)
+    assert(res.headers.has('content-type'))
+    assert(file.includes(`<title>denoliver - /src</title>`))
   } finally {
     await tearDown()
   }
@@ -125,7 +143,7 @@ test('/style.css should return style.css from ./demo', async (): Promise<
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
     const localFile = new TextDecoder().decode(
-      await Deno.readFile('./demo/style.css'),
+      await Deno.readFile('./demo/style.css')
     )
     assert(file, localFile)
   } finally {
@@ -232,8 +250,13 @@ test('options are read from config file if it exists', async (): Promise<
 //   void
 // > => {
 //   try {
-//     denoliver = await serve({ root: './demo', cors: true, secure: true })
-//     const res = await fetch(`https://localhost:8080`)
+//     denoliver = await serve({
+//       root: './demo',
+//       cors: true,
+//       secure: true,
+//       port: 6062,
+//     })
+//     const res = await fetch(`https://localhost:6062`)
 //     const file = await res.text()
 //     assertEquals(res.status, 200)
 //     assert(res.headers.has('content-type'))
