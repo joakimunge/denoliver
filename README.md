@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/denoliver.png" title="Denoliver" alt="It's a liver" width="530">
+  <img src="media/denoliver_2.png" title="Denoliver" alt="It's a liver" width="530">
 </p>
 
 <p align="center">
