@@ -5,16 +5,16 @@ export const html = (name: string) =>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta charset="utf-8" />
-      <link rel="stylesheet" type="text/css" href="./index.css">
+      <link rel="stylesheet" type="text/css" href="/index.css">
       <title>${name}</title>
     </head>
     <body>
       <div id="denoliver">
-        <img src="./logo.svg" width="200" />
+        <img src="/logo.svg" width="200" />
         <h1>I'm alive!</h1>
       </div>
     </body>
-    <script type="text/javascript" src="./app.js"></script>
+    <script type="text/javascript" src="/app.js"></script>
   </html>
 
 `
