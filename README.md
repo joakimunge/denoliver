@@ -71,7 +71,9 @@ Denoliver comes with a couple of options to customize your experience.
 -d                 # Debug for more verbose output - Defaults to false
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
 -c                 # Use CORS - Defaults to false
---entry=<..>       # Specify optional entrypoint - Defaults to index.htmll
+--certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
+--keyFile=<..>     # Specify key file - Defaults to denoliver.key
+--entry=<..>       # Specify optional entrypoint - Defaults to index.html
 ```
 
 ### Optional boilerplating
@@ -97,6 +99,8 @@ If you want, you can place a configuration file called `denoliver.json` in the f
   "debug": false,
   "secure": false,
   "cors": false,
+  "certFile": "some_file.crt",
+  "keyFile": "some_file.key",
   "entryPoint": "index.html"
 }
 ```
@@ -120,7 +124,7 @@ server.close() // Close the server
 
 To use HTTPS you will need a trusted self-signed certificate. If you're on macOS you can use [This](https://github.com/kingkool68/generate-ssl-certs-for-local-development) bash script to easily generate one.
 
-Name the cert and key files `denoliver.crt` and `denoliver.key` and place them in your working dir.
+Name the cert and key files `denoliver.crt` and `denoliver.key` and place them in your working dir. You can configure these names to be whatever you want with the config file, or the `--certFile` and `--keyFile` flags.
 
 ## Disclaimer
 
