@@ -35,7 +35,7 @@ Denoliver supports indexing of served directories and provides a simple interfac
   <img src="media/list.png">
 </p>
 
-## Install Denoliver as an executable
+## Getting started
 
 Install as a Deno executable.
 

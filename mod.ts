@@ -209,6 +209,15 @@ const setGlobals = (args: DenoliverOptions): void => {
   entryPoint = args.entryPoint ?? 'index.html'
 }
 
+const makeBoilerplate = async (path: string, name: string) => {
+  await Deno.mkdir(`${path}/${name}`, { recursive: true })
+  const htmlData = encode(html(name))
+  const cssData = encode(css())
+  await Deno.writeFile(`${path}/${name}/index.html`, htmlData)
+  await Deno.writeFile(`${path}/${name}/index.css`, cssData)
+  await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
+}
+
 interface DenoliverOptions {
   root?: string
   port?: number
@@ -262,15 +271,6 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
   printStart(root, port, secure)
   startListener(router)
   return server
-}
-
-const makeBoilerplate = async (path: string, name: string) => {
-  await Deno.mkdir(`${path}/${name}`, { recursive: true })
-  const htmlData = encode(html(name))
-  const cssData = encode(css())
-  await Deno.writeFile(`${path}/${name}/index.html`, htmlData)
-  await Deno.writeFile(`${path}/${name}/index.css`, cssData)
-  await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
 }
 
 if (import.meta.main) {
