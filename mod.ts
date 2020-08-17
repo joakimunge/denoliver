@@ -31,7 +31,7 @@ import {
   DirEntry,
 } from './utils/utils.ts'
 
-import { html, css } from './utils/boilerplate.ts'
+import { html, css, logo } from './utils/boilerplate.ts'
 import dirTemplate from './directory.ts'
 
 /* Initialize file watcher */
@@ -213,8 +213,11 @@ const makeBoilerplate = async (path: string, name: string) => {
   await Deno.mkdir(`${path}/${name}`, { recursive: true })
   const htmlData = encode(html(name))
   const cssData = encode(css())
+  const svgData = encode(logo())
+
   await Deno.writeFile(`${path}/${name}/index.html`, htmlData)
   await Deno.writeFile(`${path}/${name}/index.css`, cssData)
+  await Deno.writeFile(`${path}/${name}/logo.svg`, svgData)
   await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
 }
 
