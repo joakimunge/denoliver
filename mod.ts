@@ -58,6 +58,9 @@ const handleFileRequest = async (req: ServerRequest) => {
   try {
     const path = joinPath(root, req.url)
     const file = await Deno.open(path)
+    req.done.then(() => {
+      file.close()
+    })
     return req.respond({
       status: 200,
       headers: setHeaders(cors, path),
