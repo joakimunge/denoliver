@@ -201,8 +201,8 @@ test('should be able to be used programmaticaly', async (): Promise<void> => {
 
 test('options can be passed to the serve function', async (): Promise<void> => {
   try {
-    denoliver = await serve({ root: './demo', cors: true, port: 3000 })
-    const res = await fetch(`http://localhost:3000`)
+    denoliver = await serve({ root: './demo', cors: true, port: 4000 })
+    const res = await fetch(`http://localhost:4000`)
     const file = await res.text()
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))

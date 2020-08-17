@@ -50,6 +50,8 @@ let secure: boolean = false
 let help: boolean = false
 let cors: boolean = false
 let list: boolean = false
+let certFile: string = 'denoliver'
+let keyFile: string = 'denoliver'
 let entryPoint: string = 'index.html'
 
 const handleFileRequest = async (req: ServerRequest) => {
@@ -165,13 +167,13 @@ const router = async (req: ServerRequest): Promise<void> => {
 
 const checkCredentials = async () => {
   try {
-    await Deno.stat(`${root}/denoliver.crt`)
-    await Deno.stat(`${root}/denoliver.key`)
+    await Deno.stat(`${root}/${certFile}.crt`)
+    await Deno.stat(`${root}/${keyFile}.key`)
   } catch (err) {
     !silent && debug
       ? console.error(err)
       : error(
-          'Could not certificate or key files. Make sure you have denoliver.crt & denoliver.key in your working directory, or try without -t.'
+          'Could not certificate or key files. Make sure you have your CERT_FILE.crt & KEY_FILE.key in your working directory, or try without -t.'
         )
     Deno.exit()
   }
@@ -198,6 +200,9 @@ const setGlobals = (args: DenoliverOptions): void => {
   secure = args.secure ?? false
   cors = args.cors ?? false
   list = args.list ?? false
+  certFile = args.certFile ?? 'denoliver'
+  keyFile = args.keyFile ?? 'denoliver'
+
   entryPoint = args.entryPoint ?? 'index.html'
 }
 
@@ -211,6 +216,8 @@ interface DenoliverOptions {
   secure?: boolean
   help?: boolean
   list?: boolean
+  certFile?: string
+  keyFile?: string
   entryPoint?: string
 }
 
@@ -244,8 +251,8 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
   server = secure
     ? serveTLS({
         port: port,
-        certFile: `${root}/denoliver.crt`,
-        keyFile: `${root}/denoliver.key`,
+        certFile: `${root}/${certFile}.crt`,
+        keyFile: `${root}/${keyFile}.key`,
       })
     : serve({ port })
 
