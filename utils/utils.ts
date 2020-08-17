@@ -7,7 +7,20 @@ import notFound from '../404.ts'
 /* CLI Utils */
 
 export const isValidArg = (arg: string): boolean => {
-  const args = ['_', 'h', 'n', 's', 'd', 'p', 't', 'c', 'l', 'entry']
+  const args = [
+    '_',
+    'h',
+    'n',
+    's',
+    'd',
+    'p',
+    't',
+    'c',
+    'l',
+    'keyFile',
+    'certFile',
+    'entry',
+  ]
   return args.includes(arg)
 }
 
