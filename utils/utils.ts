@@ -107,16 +107,22 @@ export const printHelp = (): void => {
   console.log(`\n
   ${bold(green('🦕  🚚 Denoliver - Help'))}
 
-  OPTIONS | <default>
-  -h -- Help
-  -p -- Port | 8080
-  -n -- Disable Live Reload | false
-  -s -- Silent | false
-  -d -- Debug | false
-  -t -- Use HTTPS - Requires trusted self signed certificate | false
-  -c -- Allow CORS | false
-  -l -- Use Directory Listings (Disables SPA routing)
-  --entry -- Specify entrypoint | index.html
+  OPTIONS    
+  -h          # Help
+  -p          # Port | ${bold(blue('8080'))}
+  -n          # Disable Live Reload | ${bold(blue('false'))}
+  -s          # Silent | ${bold(blue('false'))}
+  -d          # Debug | ${bold(blue('false'))}
+  -t          # Use HTTPS - Requires trusted self signed certificate | ${bold(
+    blue('false')
+  )}
+  -c          # Allow CORS | ${bold(blue('false'))}
+  -l          # Use Directory Listings (Disables SPA routing) | ${bold(
+    blue('false')
+  )}
+  --certFile  # Specify certificate file - ${bold(blue('denoliver.crt'))}
+  --keyFile   # Specify certificate file - ${bold(blue('denoliver.key'))}
+  --entry     # Specify entrypoint | ${bold(blue('index.html'))}
   `)
 }
 

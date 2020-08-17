@@ -193,6 +193,7 @@ const startListener = async (
 
 const setGlobals = (args: DenoliverOptions): void => {
   root = args.root ?? '.'
+  help = args.help ?? false
   debug = args.debug ?? false
   silent = args.silent ?? false
   disableReload = args.disableReload ?? false
@@ -303,6 +304,8 @@ if (import.meta.main) {
     help: parsedArgs.h,
     cors: parsedArgs.c,
     list: parsedArgs.l,
+    certFile: parsedArgs.certFile,
+    keyFile: parsedArgs.keyFile,
     entryPoint: parsedArgs.entry,
   })
 
