@@ -127,14 +127,14 @@ export const printHelp = (): void => {
   `)
 }
 
-export const printStart = async (
+export const printStart = (
   root: string,
   port: number,
+  networkAddr: string | undefined,
   secure?: boolean
-): Promise<void> => {
+): void => {
   const tcp = secure ? 'https' : 'http'
-  const localAddr = await getNetworkAddr()
-  const networkPrint = `${tcp}://${localAddr}:${port}`
+  const networkPrint = `${tcp}://${networkAddr}:${port}`
   console.clear()
   console.log(
     `\n
@@ -144,11 +144,11 @@ export const printStart = async (
 
       ${bold('Local:')}      ${tcp}://localhost:${port}
       ${bold('Network:')}    ${
-      localAddr ? networkPrint : 'Could not resolve network address'
+      networkAddr ? networkPrint : 'Could not resolve network address'
     }
 
   ${
-    !localAddr
+    !networkAddr
       ? `${blue(
           'Denoliver needs permission to spawn a subprocess to access your local network address. If you wish, install it again with the --allow-run flag'
         )}`

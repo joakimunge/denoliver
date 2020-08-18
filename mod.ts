@@ -32,6 +32,7 @@ import {
 } from './utils/utils.ts'
 
 import { html, css, logo } from './utils/boilerplate.ts'
+import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
 
 type DenoliverOptions = {
@@ -54,6 +55,7 @@ let watcher: AsyncIterableIterator<Deno.FsEvent>
 
 /* Server */
 let server: Server
+let networkAddr: string | undefined
 
 /* Globals */
 let root: string = '.'
@@ -271,7 +273,8 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
       })
     : serve({ port })
 
-  printStart(root, port, secure)
+  networkAddr = await getNetworkAddr()
+  printStart(root, port, networkAddr, secure)
   startListener(router)
   return server
 }
