@@ -185,38 +185,48 @@ test('when cors enabled response should have access control header', async (): P
 
 /* Programmatic use */
 let denoliver: Server
-test('should be able to be used programmaticaly', async (): Promise<void> => {
-  try {
-    denoliver = await serve({ root: './demo', cors: true })
-    const res = await fetch(`http://localhost:8080`)
-    const file = await res.text()
-    assertEquals(res.status, 200)
-    assert(res.headers.has('content-type'))
-    assert(res.headers.has('access-control-allow-origin'))
-    assert(file.includes(`<div id="denoliver">`))
-  } finally {
-    denoliver.close()
-  }
+test({
+  name: 'should be able to be used programmaticaly',
+  fn: async (): Promise<void> => {
+    try {
+      denoliver = await serve({ root: './demo', cors: true })
+      const res = await fetch(`http://localhost:8080`)
+      const file = await res.text()
+      assertEquals(res.status, 200)
+      assert(res.headers.has('content-type'))
+      assert(res.headers.has('access-control-allow-origin'))
+      assert(file.includes(`<div id="denoliver">`))
+    } finally {
+      await denoliver.close()
+    }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
 })
 
-test('options can be passed to the serve function', async (): Promise<void> => {
-  try {
-    denoliver = await serve({ root: './demo', cors: true, port: 4000 })
-    const res = await fetch(`http://localhost:4000`)
-    const file = await res.text()
-    assertEquals(res.status, 200)
-    assert(res.headers.has('content-type'))
-    assert(res.headers.has('access-control-allow-origin'))
-    assert(file.includes(`<div id="denoliver">`))
-  } finally {
-    denoliver.close()
-  }
+test({
+  name: 'options can be passed to the serve function',
+  fn: async (): Promise<void> => {
+    try {
+      denoliver = await serve({ root: './demo', cors: true, port: 4000 })
+      const res = await fetch(`http://localhost:4000`)
+      const file = await res.text()
+      assertEquals(res.status, 200)
+      assert(res.headers.has('content-type'))
+      assert(res.headers.has('access-control-allow-origin'))
+      assert(file.includes(`<div id="denoliver">`))
+    } finally {
+      await denoliver.close()
+    }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
 })
 
-test('options are read from config file if it exists', async (): Promise<
-  void
-> => {
-  const config = `
+test({
+  name: 'options are read from config file if it exists',
+  fn: async (): Promise<void> => {
+    const config = `
   {
     "root": "./demo",
     "disableReload": true,
@@ -228,21 +238,24 @@ test('options are read from config file if it exists', async (): Promise<
     "entryPoint": "index.html"
   }
   `
-  const encoded = encode(config)
-  await Deno.writeFile(`./demo/denoliver.json`, encoded)
-  await setup()
+    const encoded = encode(config)
+    await Deno.writeFile(`./demo/denoliver.json`, encoded)
+    await setup()
 
-  try {
-    const res = await fetch(`http://localhost:5000`)
-    const file = await res.text()
-    assertEquals(res.status, 200)
-    assert(res.headers.has('content-type'))
-    assert(res.headers.has('access-control-allow-origin'))
-    assert(file.includes(`<div id="denoliver">`))
-  } finally {
-    await Deno.remove(`./demo/denoliver.json`)
-    await tearDown()
-  }
+    try {
+      const res = await fetch(`http://localhost:5000`)
+      const file = await res.text()
+      assertEquals(res.status, 200)
+      assert(res.headers.has('content-type'))
+      assert(res.headers.has('access-control-allow-origin'))
+      assert(file.includes(`<div id="denoliver">`))
+    } finally {
+      await Deno.remove(`./demo/denoliver.json`)
+      await tearDown()
+    }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false,
 })
 
 // Re-enable this test when this has been resolved:

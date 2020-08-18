@@ -6,6 +6,7 @@
 import { decode } from './utils.ts'
 
 export const getNetworkAddr = async () => {
+  let ifconfig: Deno.Process | undefined
   try {
     const ifconfig = await Deno.run({
       cmd: ['ifconfig'],
@@ -23,6 +24,8 @@ export const getNetworkAddr = async () => {
       throw new Error('Could resolve your local adress.')
     }
 
+    await ifconfig.close()
+
     return (
       addrs &&
       addrs
@@ -31,5 +34,6 @@ export const getNetworkAddr = async () => {
     )
   } catch (err) {
     console.log(err.message)
+    ifconfig && (await ifconfig.status())
   }
 }
