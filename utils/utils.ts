@@ -3,6 +3,7 @@ import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
 import mimes from '../mimes.ts'
 import notFound from '../404.ts'
+import { getNetworkAddr } from './local-ip.ts'
 
 /* CLI Utils */
 
@@ -126,18 +127,33 @@ export const printHelp = (): void => {
   `)
 }
 
-export const printStart = (
+export const printStart = async (
   root: string,
   port: number,
   secure?: boolean
-): void => {
+): Promise<void> => {
   const tcp = secure ? 'https' : 'http'
+  const localAddr = await getNetworkAddr()
+  const networkPrint = `${tcp}://${localAddr}:${port}`
+  console.clear()
   console.log(
     `\n
   ${bold(green('🦕  🚚 Denoliver'))}
 
-  ${bold(blue(`Serving ${root} on ${tcp}://localhost:${port}`))}
-  
+  Now serving ${bold(root)}:
+
+      ${bold('Local:')}      ${tcp}://localhost:${port}
+      ${bold('Network:')}    ${
+      localAddr ? networkPrint : 'Could not resolve network address'
+    }
+
+  ${
+    !localAddr
+      ? `${blue(
+          'Denoliver needs permission to spawn a subprocess to access your local network address. If you wish, install it again with the --allow-run flag'
+        )}`
+      : ''
+  }
   `
   )
 }
