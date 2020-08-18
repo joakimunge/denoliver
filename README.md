@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="media/denoliver_2.png" title="Denoliver" alt="It's a liver" width="220" style="margin: 48px 48px">
+  <img src="media/denoliver_2.png" title="Denoliver" alt="It's a liver" width="320" style="margin: 48px 48px">
 </p>
 
-<p align="center">
+<p align="center" style="margin-top: 48px">
 <a href="https://github.com/joakimunge/denoliver/actions">
 <img src="https://img.shields.io/github/workflow/status/joakimunge/denoliver/ci?style=for-the-badge"></a>
 <a href="https://github.com/joakimunge/denoliver/releases">
@@ -32,7 +32,7 @@
 Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
 
 <p align="center">
-  <img src="media/list.png">
+  <img src="media/list.png" alt="Directory listing">
 </p>
 
 ## Getting started

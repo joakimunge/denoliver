@@ -34,6 +34,21 @@ import {
 import { html, css, logo } from './utils/boilerplate.ts'
 import dirTemplate from './directory.ts'
 
+type DenoliverOptions = {
+  root?: string
+  port?: number
+  silent?: boolean
+  disableReload?: boolean
+  debug?: boolean
+  cors?: boolean
+  secure?: boolean
+  help?: boolean
+  list?: boolean
+  certFile?: string
+  keyFile?: string
+  entryPoint?: string
+}
+
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
 
@@ -219,21 +234,6 @@ const makeBoilerplate = async (path: string, name: string) => {
   await Deno.writeFile(`${path}/${name}/index.css`, cssData)
   await Deno.writeFile(`${path}/${name}/logo.svg`, svgData)
   await Deno.writeFile(`${path}/${name}/app.js`, encode(''))
-}
-
-interface DenoliverOptions {
-  root?: string
-  port?: number
-  silent?: boolean
-  disableReload?: boolean
-  debug?: boolean
-  cors?: boolean
-  secure?: boolean
-  help?: boolean
-  list?: boolean
-  certFile?: string
-  keyFile?: string
-  entryPoint?: string
 }
 
 /**
