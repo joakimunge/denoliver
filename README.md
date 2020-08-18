@@ -55,9 +55,9 @@ $ deno install -n whateverNameYouWant --allow-net --allow-read --allow-write --a
 
 _You don't need it! You can still use Denoliver as normal without this flag._
 
-Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow denoliver to spawn the subprocess `ipconfig` and fetch the address frmo there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
+Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow denoliver to spawn the subprocess `ipconfig` and fetch the address from there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
 
-This code is published as a module for you to use here: https://github.com/joakimunge/deno-local-ip/
+This code is published for you to use here: https://github.com/joakimunge/deno-local-ip/
 
 ## Running
 
