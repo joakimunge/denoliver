@@ -8,10 +8,9 @@ import { decode } from './utils.ts'
 export const getNetworkAddr = async () => {
   let ifconfig: Deno.Process | undefined
   try {
-    const ifconfig = await Deno.run({
+    ifconfig = await Deno.run({
       cmd: ['ifconfig'],
       stdout: 'piped',
-      stderr: 'piped',
     })
     const { success } = await ifconfig.status()
     if (!success) {
@@ -21,10 +20,10 @@ export const getNetworkAddr = async () => {
     const text = decode(raw)
     const addrs = text.match(new RegExp('inet (addr:)?([0-9]*.){3}[0-9]*', 'g'))
     if (!addrs || !addrs.some((x) => !x.startsWith('inet 127'))) {
-      throw new Error('Could resolve your local adress.')
+      throw new Error('Could not resolve your local adress.')
     }
 
-    await ifconfig.close()
+    await Deno.close(ifconfig.rid)
 
     return (
       addrs &&
@@ -33,7 +32,7 @@ export const getNetworkAddr = async () => {
         ?.split('inet ')[1]
     )
   } catch (err) {
+    ifconfig && (await Deno.close(ifconfig.rid))
     console.log(err.message)
-    ifconfig && (await ifconfig.status())
   }
 }

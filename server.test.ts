@@ -1,10 +1,15 @@
-import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
+import {
+  assert,
+  assertEquals,
+  assertStrContains,
+} from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
 import { appendReloadScript, encode } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server } from 'https://deno.land/std/http/server.ts'
+import { getNetworkAddr } from './utils/local-ip.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
 let port: number = 6060
@@ -200,8 +205,6 @@ test({
       await denoliver.close()
     }
   },
-  sanitizeResources: false,
-  sanitizeOps: false,
 })
 
 test({
@@ -219,8 +222,6 @@ test({
       await denoliver.close()
     }
   },
-  sanitizeResources: false,
-  sanitizeOps: false,
 })
 
 test({
@@ -254,8 +255,6 @@ test({
       await tearDown()
     }
   },
-  sanitizeResources: false,
-  sanitizeOps: false,
 })
 
 // Re-enable this test when this has been resolved:
