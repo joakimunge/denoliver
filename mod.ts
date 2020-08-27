@@ -91,7 +91,7 @@ const handleFileRequest = async (req: ServerRequest) => {
 
 const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
   try {
-    const file = await readFile(`${root}/${entryPoint}`)
+    const file = await readFile(`${root}${req.url}${entryPoint}`)
     const { hostname, port } = req.conn.localAddr as Deno.NetAddr
     req.respond({
       status: 200,
