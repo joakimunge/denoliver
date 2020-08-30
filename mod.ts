@@ -107,19 +107,24 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
 }
 
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
-  const path = joinPath(root, req.url)
-  const dirUrl = `/${posix.relative(root, path)}`
-  const entries: DirEntry[] = []
-  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
-    const filePath = posix.join(dirUrl, '/', entry.name)
-    entries.push({ ...entry, url: decodeURIComponent(filePath) })
-  }
+  try {
+    const path = joinPath(root, req.url)
+    const dirUrl = `/${posix.relative(root, path)}`
+    const entries: DirEntry[] = []
+    for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
+      const filePath = posix.join(dirUrl, '/', entry.name)
+      entries.push({ ...entry, url: decodeURIComponent(filePath) })
+    }
 
-  req.respond({
-    status: 200,
-    body: encode(dirTemplate(entries, dirUrl)),
-    headers: setHeaders(cors),
-  })
+    req.respond({
+      status: 200,
+      body: encode(dirTemplate(entries, dirUrl)),
+      headers: setHeaders(cors),
+    })
+  } catch (err) {
+    !silent && debug ? console.error(err) : error(err.message)
+    handleNotFound(req)
+  }
 }
 
 const handleWs = async (req: ServerRequest): Promise<void> => {
