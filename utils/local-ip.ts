@@ -3,7 +3,7 @@
 // https://github.com/denoland/deno/issues/3802
 
 // This code is published as a module to use here: https://github.com/joakimunge/deno-local-ip/
-import { decode, warn } from './utils.ts'
+import { decode, error } from './utils.ts'
 
 export const getNetworkAddr = async () => {
   const isWin = Deno.build.os === 'windows'
@@ -53,6 +53,6 @@ export const getNetworkAddr = async () => {
       )
     }
   } catch (err) {
-    console.log(warn(err.message))
+    console.log(error(err.message))
   }
 }
