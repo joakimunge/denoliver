@@ -78,6 +78,7 @@ Denoliver comes with a couple of options to customize your experience.
 -p <PORT>          # Specify desired port - Defaults to 8080
 -d                 # Debug for more verbose output - Defaults to false
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
+-l                 # Use directory listings - Disables routing (SPA)
 -c                 # Use CORS - Defaults to false
 --certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
 --keyFile=<..>     # Specify key file - Defaults to denoliver.key
@@ -107,6 +108,7 @@ If you want, you can place a configuration file called `denoliver.json` in the f
   "debug": false,
   "secure": false,
   "cors": false,
+  "list": false,
   "certFile": "some_file.crt",
   "keyFile": "some_file.key",
   "entryPoint": "index.html"
