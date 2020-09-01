@@ -70,6 +70,8 @@ let list: boolean = false
 let certFile: string = 'denoliver.crt'
 let keyFile: string = 'denoliver.key'
 let entryPoint: string = 'index.html'
+let before: (...args: any[]) => void
+let after: (req: ServerRequest, ...args: any[]) => ServerRequest
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -154,6 +156,10 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
 }
 
 const router = async (req: ServerRequest): Promise<void> => {
+  if (before) {
+    before()
+  }
+
   printRequest(req)
   if (!disableReload && isWebSocket(req)) {
     return await handleWs(req)
@@ -211,7 +217,7 @@ const startListener = async (
   }
 }
 
-const setGlobals = (args: DenoliverOptions): void => {
+const setGlobals = async (args: DenoliverOptions): Promise<void> => {
   root = args.root ?? '.'
   help = args.help ?? false
   debug = args.debug ?? false
@@ -275,6 +281,8 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
 
   networkAddr = await getNetworkAddr()
   printStart(root, port, networkAddr, secure)
+  await import('./bee.js').then((x) => console.log(x))
+
   startListener(router)
   return server
 }
