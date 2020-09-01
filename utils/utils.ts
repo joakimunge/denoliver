@@ -99,6 +99,16 @@ export const appendReloadScript = (
 
 export const inject404 = (filename: string) => notFound(filename)
 
+export const pipe = <R>(...fns: Array<(a: R) => R>) => (arg: R) => {
+  if (fns.length === 0) {
+    throw new Error('Expected at least one argument function')
+  }
+  return fns.reduce(
+    (prevFn, nextFn) => prevFn.then(nextFn),
+    Promise.resolve(arg)
+  )
+}
+
 /* Print utils */
 export const printRequest = (req: ServerRequest): void => {
   console.log(`${bold(green(req.method))} ${req.url}`)
