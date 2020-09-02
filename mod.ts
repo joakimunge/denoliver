@@ -221,7 +221,6 @@ const startListener = async (
   try {
     for await (const req of server) {
       before ? handler(await callInterceptors(req, before)) : handler(req)
-      console.log(after)
       after && callInterceptors(req, after)
     }
   } catch (err) {
