@@ -3,7 +3,6 @@ import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
 import mimes from '../mimes.ts'
 import notFound from '../404.ts'
-import { getNetworkAddr } from './local-ip.ts'
 
 /* CLI Utils */
 
@@ -21,6 +20,8 @@ export const isValidArg = (arg: string): boolean => {
     'keyFile',
     'certFile',
     'entry',
+    'beforeAll',
+    'afterAll',
   ]
   return args.includes(arg)
 }
