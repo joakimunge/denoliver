@@ -20,7 +20,7 @@
 ## Key Features
 
 - Dependency free! No third party dependencies.
-- Live reload of modified files.
+- Live reload
 - Supports client side routing for Single Page Applications.
 - Directory lists
 - Supports HTTPS
