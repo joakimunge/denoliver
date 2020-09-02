@@ -26,14 +26,7 @@
 - Supports HTTPS
 - Allows for programmatic use as a module
 - Boilerplating for rapid prototyping.
-
-## Directory Listing
-
-Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
-
-<p align="center">
-  <img src="media/list.png" alt="Directory listing">
-</p>
+- Injectable HTTP request interceptors.
 
 ## Getting started
 
@@ -67,7 +60,7 @@ From your project root / directory you want to serve
 $ denoliver
 ```
 
-### Options
+## Options
 
 Denoliver comes with a couple of options to customize your experience.
 
@@ -80,10 +73,20 @@ Denoliver comes with a couple of options to customize your experience.
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
 -l                 # Use directory listings - Disables routing (SPA)
 -c                 # Use CORS - Defaults to false
+--beforeAll=<..>   # Before request Interceptor(s)
+--afterAll=<..>    # After request Interceptor(s)
 --certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
 --keyFile=<..>     # Specify key file - Defaults to denoliver.key
 --entry=<..>       # Specify optional entrypoint - Defaults to index.html
 ```
+
+### Directory Listing
+
+Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
+
+<p align="center">
+  <img src="media/list.png" alt="Directory listing">
+</p>
 
 ### Optional boilerplating
 
@@ -93,6 +96,38 @@ If the given directory doesn't exist, denoliver will ask you if you want to crea
 ├── index.html
 ├── index.css
 ├── app.js
+```
+
+### Interceptors
+
+Denoliver allows you to inject your own request interceptors to be fired before or after the HTTP requests has been handled by the server.
+This can be one or more functions which have access to the request object (instance of [Deno.Request](https://doc.deno.land/builtin/stable#Request)) and gets called in the order they are defined with the output of the previous function (piped). **These functions must all return the request object.**
+
+Interceptors can be a single function, for example:
+
+```typescript
+// beforeAll.ts
+
+export default (req: ServerRequest) => {
+  req.headers.set('Authorization', 'Bearer some-token')
+  return req
+}
+```
+
+or an array of functions:
+
+```typescript
+const setHeaders = (req: ServerRequest) => {
+  req.headers.set('Authorization', 'Bearer some-token')
+  return req
+}
+
+const logRequestUrl = (req: ServerRequest) => {
+  console.log(req.url)
+  return req
+}
+
+export default [setHeaders, logRequestUrl]
 ```
 
 ## Configuration
@@ -109,6 +144,8 @@ If you want, you can place a configuration file called `denoliver.json` in the f
   "secure": false,
   "cors": false,
   "list": false,
+  "beforeAll": "before.ts",
+  "afterAll": "after.ts",
   "certFile": "some_file.crt",
   "keyFile": "some_file.key",
   "entryPoint": "index.html"
