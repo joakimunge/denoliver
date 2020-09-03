@@ -35,6 +35,7 @@ import {
 import { html, css, logo } from './utils/boilerplate.ts'
 import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
+import { InterceptorException } from './utils/errors.ts'
 
 type DenoliverOptions = {
   root?: string
@@ -170,14 +171,17 @@ const callInterceptors = (
 }
 
 const router = async (req: ServerRequest): Promise<void> => {
-  printRequest(req)
-  if (!disableReload && isWebSocket(req)) {
-    return await handleWs(req)
-  }
-  if (req.method === 'GET' && req.url === '/') {
-    return handleRouteRequest(req)
-  }
   try {
+    if (!(req instanceof ServerRequest)) {
+      throw new InterceptorException()
+    }
+    printRequest(req)
+    if (!disableReload && isWebSocket(req)) {
+      return await handleWs(req)
+    }
+    if (req.method === 'GET' && req.url === '/') {
+      return handleRouteRequest(req)
+    }
     const path = joinPath(root, req.url)
     if (isRoute(path)) {
       if (list) {
@@ -198,6 +202,7 @@ const router = async (req: ServerRequest): Promise<void> => {
   } catch (err) {
     err instanceof Deno.errors.NotFound && handleNotFound(req)
     !silent && debug ? console.log(err) : error(err.message)
+    err instanceof InterceptorException && Deno.exit()
   }
 }
 
