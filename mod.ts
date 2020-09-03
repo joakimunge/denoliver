@@ -50,8 +50,8 @@ type DenoliverOptions = {
   certFile?: string
   keyFile?: string
   entryPoint?: string
-  beforeAll?: string
-  afterAll?: string
+  beforeAll?: string | Interceptor | Interceptor[]
+  afterAll?: string | Interceptor | Interceptor[]
 }
 
 type Interceptor = (r: ServerRequest) => ServerRequest
@@ -248,22 +248,30 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
   entryPoint = args.entryPoint ?? 'index.html'
 
   if (args.beforeAll) {
-    try {
-      const path = posix.resolve(`${root}/${args.beforeAll}`)
-      const interceptors = await import(path)
-      before = interceptors.default
-    } catch (err) {
-      !silent && debug ? console.error(err) : error(err.message)
+    if (typeof args.beforeAll === 'function') {
+      before = args.beforeAll
+    } else {
+      try {
+        const path = posix.resolve(`${root}/${args.beforeAll}`)
+        const interceptors = await import(path)
+        before = interceptors.default
+      } catch (err) {
+        !silent && debug ? console.error(err) : error(err.message)
+      }
     }
   }
 
   if (args.afterAll) {
-    try {
-      const path = posix.resolve(`${root}/${args.afterAll}`)
-      const interceptors = await import(path)
-      after = interceptors.default
-    } catch (err) {
-      !silent && debug ? console.error(err) : error(err.message)
+    if (typeof args.afterAll === 'function') {
+      before = args.afterAll
+    } else {
+      try {
+        const path = posix.resolve(`${root}/${args.afterAll}`)
+        const interceptors = await import(path)
+        after = interceptors.default
+      } catch (err) {
+        !silent && debug ? console.error(err) : error(err.message)
+      }
     }
   }
 }
