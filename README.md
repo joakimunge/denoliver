@@ -26,7 +26,7 @@
 - Supports HTTPS
 - Allows for programmatic use as a module
 - Boilerplating for rapid prototyping.
-- Injectable HTTP request interceptors.
+- Injectable HTTP request interceptors. (TS & JS)
 
 ## Getting started
 
@@ -104,6 +104,8 @@ Denoliver allows you to inject your own request interceptors to be fired before 
 This can be one or more functions which have access to the request object (instance of [Deno.Request](https://doc.deno.land/builtin/stable#Request)) and gets called in the order they are defined with the output of the previous function (piped). **These functions must all return the request object.**
 
 Interceptors can be a single function, for example:
+
+Supports both TypeScript and plain Javascript.
 
 ```typescript
 // beforeAll.ts
