@@ -5,7 +5,6 @@ import { Args } from 'https://deno.land/std/flags/mod.ts'
 import { appendReloadScript, encode, decode } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server, ServerRequest } from 'https://deno.land/std/http/server.ts'
-import { posix } from 'https://deno.land/std@0.67.0/path/mod.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
 let port: number = 6060
@@ -263,7 +262,6 @@ test('beforeAll intercepts requests', async (): Promise<void> => {
   } finally {
     await server.close()
     const s = decode(await server.output())
-    console.log(s)
     assert(s.includes('Before Request Interceptor'))
   }
 })
