@@ -29,7 +29,7 @@ export const isValidArg = (arg: string): boolean => {
 export const isValidPort = (port: any): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
 
-export const prompt = async (body: string = '') => {
+export const prompt = async (body = '') => {
   const buf = new Uint8Array(1024)
   await Deno.stdout.write(encode(`${bold(green(`\n${body}`))}`))
   const n = (await Deno.stdin.read(buf)) as number

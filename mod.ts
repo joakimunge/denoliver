@@ -64,18 +64,18 @@ let server: Server
 let networkAddr: string | undefined
 
 /* Globals */
-let root: string = '.'
-let port: number = 8080
-let debug: boolean = false
-let silent: boolean = false
-let disableReload: boolean = false
-let secure: boolean = false
-let help: boolean = false
-let cors: boolean = false
-let list: boolean = false
-let certFile: string = 'denoliver.crt'
-let keyFile: string = 'denoliver.key'
-let entryPoint: string = 'index.html'
+let root = '.'
+let port = 8080
+let debug = false
+let silent = false
+let disableReload = false
+let secure = false
+let help = false
+let cors = false
+let list = false
+let certFile = 'denoliver.crt'
+let keyFile = 'denoliver.key'
+let entryPoint = 'index.html'
 let before: Array<Interceptor> | Interceptor
 let after: Array<Interceptor> | Interceptor
 
@@ -161,15 +161,6 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
   })
 }
 
-const callInterceptors = (
-  req: ServerRequest,
-  funcs: Interceptor[] | Interceptor
-) => {
-  const fns = Array.isArray(funcs) ? funcs : [funcs]
-  const pipeline = pipe(...fns)
-  return pipeline(req)
-}
-
 const router = async (req: ServerRequest): Promise<void> => {
   try {
     if (!(req instanceof ServerRequest)) {
@@ -218,6 +209,15 @@ const checkCredentials = async () => {
         )
     Deno.exit()
   }
+}
+
+const callInterceptors = (
+  req: ServerRequest,
+  funcs: Interceptor[] | Interceptor
+) => {
+  const fns = Array.isArray(funcs) ? funcs : [funcs]
+  const pipeline = pipe(...fns)
+  return pipeline(req)
 }
 
 const startListener = async (

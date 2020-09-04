@@ -4,10 +4,10 @@ import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
 import { appendReloadScript, encode, decode } from './utils/utils.ts'
 import serve from './mod.ts'
-import { Server, ServerRequest } from 'https://deno.land/std/http/server.ts'
+import { Server } from 'https://deno.land/std/http/server.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
-let port: number = 6060
+let port = 6060
 const { test } = Deno
 
 async function setup(args?: Args): Promise<void> {
@@ -56,7 +56,7 @@ test('should serve on given port', async (): Promise<void> => {
   await setup({ _: ['./demo'], p: 7001 })
   try {
     const res = await fetch(`http://localhost:${port}`)
-    const file = await res.text()
+    await res.text()
     assertEquals(port, 7001)
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
