@@ -105,8 +105,6 @@ This can be one or more functions which have access to the request object (insta
 
 Interceptors can be a single function, for example:
 
-Supports both TypeScript and plain Javascript.
-
 ```typescript
 // beforeAll.ts
 
@@ -130,6 +128,18 @@ const logRequestUrl = (req: ServerRequest) => {
 }
 
 export default [setHeaders, logRequestUrl]
+```
+
+of course this can also be used when using Denoliver as a module:
+
+```typescript
+const server = denoliver({
+  port: 6060,
+  beforeAll: (req: ServerRequest) => {
+    req.headers.set('Authorization', 'Bearer some-token')
+    return req
+  },
+})
 ```
 
 ## Configuration
