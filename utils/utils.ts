@@ -20,8 +20,8 @@ export const isValidArg = (arg: string): boolean => {
     'keyFile',
     'certFile',
     'entry',
-    'beforeAll',
-    'afterAll',
+    'before',
+    'after',
   ]
   return args.includes(arg)
 }

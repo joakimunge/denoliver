@@ -24,7 +24,7 @@ async function setup(args?: Args): Promise<void> {
   args && args.c && cmd.push('-c')
   args && args.n && cmd.push('-n')
   args && args.l && cmd.push('-l')
-  args && args.beforeAll && cmd.push(`--beforeAll=${args.beforeAll}`)
+  args && args.before && cmd.push(`--before=${args.before}`)
 
   if (args && args.p) {
     port = args.p
@@ -253,8 +253,8 @@ test({
   },
 })
 
-test('beforeAll intercepts requests', async (): Promise<void> => {
-  await setup({ _: ['./demo'], l: true, beforeAll: 'before.ts' })
+test('before intercepts requests', async (): Promise<void> => {
+  await setup({ _: ['./demo'], l: true, before: 'before.ts' })
   try {
     const res = await fetch(`http://localhost:${port}`)
     await res.text()

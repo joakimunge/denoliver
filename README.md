@@ -73,8 +73,8 @@ Denoliver comes with a couple of options to customize your experience.
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
 -l                 # Use directory listings - Disables routing (SPA)
 -c                 # Use CORS - Defaults to false
---beforeAll=<..>   # Before request Interceptor(s)
---afterAll=<..>    # After request Interceptor(s)
+--before=<..>   # Before request Interceptor(s)
+--after=<..>    # After request Interceptor(s)
 --certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
 --keyFile=<..>     # Specify key file - Defaults to denoliver.key
 --entry=<..>       # Specify optional entrypoint - Defaults to index.html
@@ -106,7 +106,7 @@ This can be one or more functions which have access to the request object (insta
 Interceptors can be a single function, for example:
 
 ```typescript
-// beforeAll.ts
+// before.ts
 
 export default (req: ServerRequest) => {
   req.headers.set('Authorization', 'Bearer some-token')
@@ -135,7 +135,7 @@ of course this can also be used when using Denoliver as a module:
 ```typescript
 const server = denoliver({
   port: 6060,
-  beforeAll: (req: ServerRequest) => {
+  before: (req: ServerRequest) => {
     req.headers.set('Authorization', 'Bearer some-token')
     return req
   },
@@ -156,8 +156,8 @@ If you want, you can place a configuration file called `denoliver.json` in the f
   "secure": false,
   "cors": false,
   "list": false,
-  "beforeAll": "before.ts",
-  "afterAll": "after.ts",
+  "before": "before.ts",
+  "after": "after.ts",
   "certFile": "some_file.crt",
   "keyFile": "some_file.key",
   "entryPoint": "index.html"

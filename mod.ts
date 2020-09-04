@@ -50,8 +50,8 @@ type DenoliverOptions = {
   certFile?: string
   keyFile?: string
   entryPoint?: string
-  beforeAll?: string | Interceptor | Interceptor[]
-  afterAll?: string | Interceptor | Interceptor[]
+  before?: string | Interceptor | Interceptor[]
+  after?: string | Interceptor | Interceptor[]
 }
 
 type Interceptor = (r: ServerRequest) => ServerRequest
@@ -247,12 +247,12 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
   keyFile = args.keyFile ?? 'denoliver.key'
   entryPoint = args.entryPoint ?? 'index.html'
 
-  if (args.beforeAll) {
-    if (typeof args.beforeAll === 'function') {
-      before = args.beforeAll
+  if (args.before) {
+    if (typeof args.before === 'function') {
+      before = args.before
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.beforeAll}`)
+        const path = posix.resolve(`${root}/${args.before}`)
         const interceptors = await import(path)
         before = interceptors.default
       } catch (err) {
@@ -261,12 +261,12 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
     }
   }
 
-  if (args.afterAll) {
-    if (typeof args.afterAll === 'function') {
-      before = args.afterAll
+  if (args.after) {
+    if (typeof args.after === 'function') {
+      before = args.after
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.afterAll}`)
+        const path = posix.resolve(`${root}/${args.after}`)
         const interceptors = await import(path)
         after = interceptors.default
       } catch (err) {
@@ -367,8 +367,8 @@ if (import.meta.main) {
     certFile: parsedArgs.certFile,
     keyFile: parsedArgs.keyFile,
     entryPoint: parsedArgs.entry,
-    beforeAll: parsedArgs.beforeAll,
-    afterAll: parsedArgs.afterAll,
+    before: parsedArgs.before,
+    after: parsedArgs.after,
   })
 
   try {
