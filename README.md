@@ -11,7 +11,7 @@
 
 ---
 
-**Denoliver** is a small, zero config static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
+**Denoliver** is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
 
 ## Prerequisites
 
@@ -54,10 +54,10 @@ This code is published for you to use here: https://github.com/joakimunge/deno-l
 
 ## Running
 
-From your project root / directory you want to serve
+Serve your directory
 
 ```s
-$ denoliver
+$ denoliver ./demo
 ```
 
 ## Options
