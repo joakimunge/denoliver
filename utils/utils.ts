@@ -3,7 +3,6 @@ import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
 import mimes from '../mimes.ts'
 import notFound from '../404.ts'
-import { getNetworkAddr } from './local-ip.ts'
 
 /* CLI Utils */
 
@@ -21,6 +20,8 @@ export const isValidArg = (arg: string): boolean => {
     'keyFile',
     'certFile',
     'entry',
+    'before',
+    'after',
   ]
   return args.includes(arg)
 }
@@ -28,7 +29,7 @@ export const isValidArg = (arg: string): boolean => {
 export const isValidPort = (port: any): boolean =>
   port >= 1 && port <= 65535 && Number.isInteger(port)
 
-export const prompt = async (body: string = '') => {
+export const prompt = async (body = '') => {
   const buf = new Uint8Array(1024)
   await Deno.stdout.write(encode(`${bold(green(`\n${body}`))}`))
   const n = (await Deno.stdin.read(buf)) as number
@@ -98,6 +99,16 @@ export const appendReloadScript = (
 }
 
 export const inject404 = (filename: string) => notFound(filename)
+
+export const pipe = <R>(...fns: Array<(a: R) => R>) => (arg: R) => {
+  if (fns.length === 0) {
+    throw new Error('Expected at least one argument function')
+  }
+  return fns.reduce(
+    (prevFn, nextFn) => prevFn.then(nextFn),
+    Promise.resolve(arg)
+  )
+}
 
 /* Print utils */
 export const printRequest = (req: ServerRequest): void => {

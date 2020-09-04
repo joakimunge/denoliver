@@ -5,6 +5,7 @@ import {
   isValidPort,
   isValidArg,
   readFile,
+  pipe,
 } from './utils/utils.ts'
 
 /* Utils */
@@ -72,4 +73,24 @@ Deno.test('isValidArg', () => {
 Deno.test('readFile', async () => {
   const file = await readFile('./demo/index.html')
   assert(file.includes('<!DOCTYPE html'))
+})
+
+Deno.test(
+  'pipe calls all functions in array with outcome of previous fn',
+  async () => {
+    const fn1 = (val: number) => val + 1
+    const fn2 = (val: number) => val + 2
+    const fn3 = (val: number) => val + 3
+    const funcs = [fn1, fn2, fn3]
+
+    const pipedFunction = pipe(...funcs)
+    assertEquals(await pipedFunction(1), 7)
+  }
+)
+
+Deno.test('pipe works with single function argument', async () => {
+  const fn1 = (val: number) => val + 1
+
+  const pipedFunction = pipe(fn1)
+  assertEquals(await pipedFunction(1), 2)
 })

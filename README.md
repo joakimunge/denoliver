@@ -11,7 +11,7 @@
 
 ---
 
-**Denoliver** is a small, zero config static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
+**Denoliver** is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
 
 ## Prerequisites
 
@@ -20,20 +20,13 @@
 ## Key Features
 
 - Dependency free! No third party dependencies.
-- Live reload of modified files.
+- Live reload
 - Supports client side routing for Single Page Applications.
 - Directory lists
 - Supports HTTPS
 - Allows for programmatic use as a module
 - Boilerplating for rapid prototyping.
-
-## Directory Listing
-
-Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
-
-<p align="center">
-  <img src="media/list.png" alt="Directory listing">
-</p>
+- Injectable HTTP request interceptors. (TS & JS)
 
 ## Getting started
 
@@ -61,13 +54,13 @@ This code is published for you to use here: https://github.com/joakimunge/deno-l
 
 ## Running
 
-From your project root / directory you want to serve
+Serve your directory
 
 ```s
-$ denoliver
+$ denoliver ./demo
 ```
 
-### Options
+## Options
 
 Denoliver comes with a couple of options to customize your experience.
 
@@ -80,10 +73,20 @@ Denoliver comes with a couple of options to customize your experience.
 -t                 # Use HTTPS - Requires a trusted self-signed certificate
 -l                 # Use directory listings - Disables routing (SPA)
 -c                 # Use CORS - Defaults to false
+--before=<..>   # Before request Interceptor(s)
+--after=<..>    # After request Interceptor(s)
 --certFile=<..>    # Specify certificate file - Defaults to denoliver.crt
 --keyFile=<..>     # Specify key file - Defaults to denoliver.key
 --entry=<..>       # Specify optional entrypoint - Defaults to index.html
 ```
+
+### Directory Listing
+
+Denoliver supports indexing of served directories and provides a simple interface, with dark mode support, for navigating a project folder.
+
+<p align="center">
+  <img src="media/list.png" alt="Directory listing">
+</p>
 
 ### Optional boilerplating
 
@@ -93,6 +96,50 @@ If the given directory doesn't exist, denoliver will ask you if you want to crea
 ├── index.html
 ├── index.css
 ├── app.js
+```
+
+### Interceptors
+
+Denoliver allows you to inject your own request interceptors to be fired before or after the HTTP requests has been handled by the server.
+This can be one or more functions which have access to the request object (instance of [Deno.Request](https://doc.deno.land/builtin/stable#Request)) and gets called in the order they are defined with the output of the previous function (piped). **These functions must all return the request object.**
+
+Interceptors can be a single function, for example:
+
+```typescript
+// before.ts
+
+export default (req: ServerRequest) => {
+  req.headers.set('Authorization', 'Bearer some-token')
+  return req
+}
+```
+
+or an array of functions:
+
+```typescript
+const setHeaders = (req: ServerRequest) => {
+  req.headers.set('Authorization', 'Bearer some-token')
+  return req
+}
+
+const logRequestUrl = (req: ServerRequest) => {
+  console.log(req.url)
+  return req
+}
+
+export default [setHeaders, logRequestUrl]
+```
+
+of course this can also be used when using Denoliver as a module:
+
+```typescript
+const server = denoliver({
+  port: 6060,
+  before: (req: ServerRequest) => {
+    req.headers.set('Authorization', 'Bearer some-token')
+    return req
+  },
+})
 ```
 
 ## Configuration
@@ -109,6 +156,8 @@ If you want, you can place a configuration file called `denoliver.json` in the f
   "secure": false,
   "cors": false,
   "list": false,
+  "before": "before.ts",
+  "after": "after.ts",
   "certFile": "some_file.crt",
   "keyFile": "some_file.key",
   "entryPoint": "index.html"

@@ -2,10 +2,10 @@ const { args } = Deno
 import { parse } from 'https://deno.land/std/flags/mod.ts'
 import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts'
 import {
-  ServerRequest,
   serve,
   Server,
   serveTLS,
+  ServerRequest,
 } from 'https://deno.land/std/http/server.ts'
 import { posix } from 'https://deno.land/std/path/mod.ts'
 
@@ -29,11 +29,13 @@ import {
   prompt,
   joinPath,
   DirEntry,
+  pipe,
 } from './utils/utils.ts'
 
 import { html, css, logo } from './utils/boilerplate.ts'
 import { getNetworkAddr } from './utils/local-ip.ts'
 import dirTemplate from './directory.ts'
+import { InterceptorException } from './utils/errors.ts'
 
 type DenoliverOptions = {
   root?: string
@@ -48,7 +50,11 @@ type DenoliverOptions = {
   certFile?: string
   keyFile?: string
   entryPoint?: string
+  before?: string | Interceptor | Interceptor[]
+  after?: string | Interceptor | Interceptor[]
 }
+
+type Interceptor = (r: ServerRequest) => ServerRequest
 
 /* Initialize file watcher */
 let watcher: AsyncIterableIterator<Deno.FsEvent>
@@ -58,18 +64,20 @@ let server: Server
 let networkAddr: string | undefined
 
 /* Globals */
-let root: string = '.'
-let port: number = 8080
-let debug: boolean = false
-let silent: boolean = false
-let disableReload: boolean = false
-let secure: boolean = false
-let help: boolean = false
-let cors: boolean = false
-let list: boolean = false
-let certFile: string = 'denoliver.crt'
-let keyFile: string = 'denoliver.key'
-let entryPoint: string = 'index.html'
+let root = '.'
+let port = 8080
+let debug = false
+let silent = false
+let disableReload = false
+let secure = false
+let help = false
+let cors = false
+let list = false
+let certFile = 'denoliver.crt'
+let keyFile = 'denoliver.key'
+let entryPoint = 'index.html'
+let before: Array<Interceptor> | Interceptor
+let after: Array<Interceptor> | Interceptor
 
 const handleFileRequest = async (req: ServerRequest) => {
   try {
@@ -154,14 +162,17 @@ const handleNotFound = async (req: ServerRequest): Promise<void> => {
 }
 
 const router = async (req: ServerRequest): Promise<void> => {
-  printRequest(req)
-  if (!disableReload && isWebSocket(req)) {
-    return await handleWs(req)
-  }
-  if (req.method === 'GET' && req.url === '/') {
-    return handleRouteRequest(req)
-  }
   try {
+    if (!(req instanceof ServerRequest)) {
+      throw new InterceptorException()
+    }
+    printRequest(req)
+    if (!disableReload && isWebSocket(req)) {
+      return await handleWs(req)
+    }
+    if (req.method === 'GET' && req.url === '/') {
+      return handleRouteRequest(req)
+    }
     const path = joinPath(root, req.url)
     if (isRoute(path)) {
       if (list) {
@@ -182,6 +193,7 @@ const router = async (req: ServerRequest): Promise<void> => {
   } catch (err) {
     err instanceof Deno.errors.NotFound && handleNotFound(req)
     !silent && debug ? console.log(err) : error(err.message)
+    err instanceof InterceptorException && Deno.exit()
   }
 }
 
@@ -199,19 +211,29 @@ const checkCredentials = async () => {
   }
 }
 
+const callInterceptors = (
+  req: ServerRequest,
+  funcs: Interceptor[] | Interceptor
+) => {
+  const fns = Array.isArray(funcs) ? funcs : [funcs]
+  const pipeline = pipe(...fns)
+  return pipeline(req)
+}
+
 const startListener = async (
   handler: (req: ServerRequest) => void
 ): Promise<void> => {
   try {
     for await (const req of server) {
-      handler(req)
+      before ? handler(await callInterceptors(req, before)) : handler(req)
+      after && callInterceptors(req, after)
     }
   } catch (err) {
     !silent && debug ? console.error(err) : error(err.message)
   }
 }
 
-const setGlobals = (args: DenoliverOptions): void => {
+const setGlobals = async (args: DenoliverOptions): Promise<void> => {
   root = args.root ?? '.'
   help = args.help ?? false
   debug = args.debug ?? false
@@ -224,6 +246,34 @@ const setGlobals = (args: DenoliverOptions): void => {
   certFile = args.certFile ?? 'denoliver.crt'
   keyFile = args.keyFile ?? 'denoliver.key'
   entryPoint = args.entryPoint ?? 'index.html'
+
+  if (args.before) {
+    if (typeof args.before === 'function') {
+      before = args.before
+    } else {
+      try {
+        const path = posix.resolve(`${root}/${args.before}`)
+        const interceptors = await import(path)
+        before = interceptors.default
+      } catch (err) {
+        !silent && debug ? console.error(err) : error(err.message)
+      }
+    }
+  }
+
+  if (args.after) {
+    if (typeof args.after === 'function') {
+      before = args.after
+    } else {
+      try {
+        const path = posix.resolve(`${root}/${args.after}`)
+        const interceptors = await import(path)
+        after = interceptors.default
+      } catch (err) {
+        !silent && debug ? console.error(err) : error(err.message)
+      }
+    }
+  }
 }
 
 const makeBoilerplate = async (path: string, name: string) => {
@@ -275,6 +325,7 @@ const main = async (args?: DenoliverOptions): Promise<Server> => {
 
   networkAddr = await getNetworkAddr()
   printStart(root, port, networkAddr, secure)
+
   startListener(router)
   return server
 }
@@ -303,7 +354,7 @@ if (import.meta.main) {
     }
   })
 
-  setGlobals({
+  await setGlobals({
     root: parsedArgs._.length > 0 ? String(parsedArgs._[0]) : '.',
     debug: parsedArgs.d,
     silent: parsedArgs.s,
@@ -316,6 +367,8 @@ if (import.meta.main) {
     certFile: parsedArgs.certFile,
     keyFile: parsedArgs.keyFile,
     entryPoint: parsedArgs.entry,
+    before: parsedArgs.before,
+    after: parsedArgs.after,
   })
 
   try {
