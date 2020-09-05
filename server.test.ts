@@ -2,12 +2,12 @@ import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
 import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
 import { BufReader } from 'https://deno.land/std/io/bufio.ts'
 import { Args } from 'https://deno.land/std/flags/mod.ts'
-import { appendReloadScript, encode } from './utils/utils.ts'
+import { appendReloadScript, encode, decode } from './utils/utils.ts'
 import serve from './mod.ts'
 import { Server } from 'https://deno.land/std/http/server.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
-let port: number = 6060
+let port = 6060
 const { test } = Deno
 
 async function setup(args?: Args): Promise<void> {
@@ -24,6 +24,7 @@ async function setup(args?: Args): Promise<void> {
   args && args.c && cmd.push('-c')
   args && args.n && cmd.push('-n')
   args && args.l && cmd.push('-l')
+  args && args.before && cmd.push(`--before=${args.before}`)
 
   if (args && args.p) {
     port = args.p
@@ -55,7 +56,7 @@ test('should serve on given port', async (): Promise<void> => {
   await setup({ _: ['./demo'], p: 7001 })
   try {
     const res = await fetch(`http://localhost:${port}`)
-    const file = await res.text()
+    await res.text()
     assertEquals(port, 7001)
     assertEquals(res.status, 200)
     assert(res.headers.has('content-type'))
@@ -250,6 +251,19 @@ test({
       await tearDown()
     }
   },
+})
+
+test('before intercepts requests', async (): Promise<void> => {
+  await setup({ _: ['./demo'], l: true, before: 'before.ts' })
+  try {
+    const res = await fetch(`http://localhost:${port}`)
+    await res.text()
+    assertEquals(res.status, 200)
+  } finally {
+    await server.close()
+    const s = decode(await server.output())
+    assert(s.includes('Before Request Interceptor'))
+  }
 })
 
 // Re-enable this test when this has been resolved:
