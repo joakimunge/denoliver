@@ -9,23 +9,19 @@ export const getNetworkAddr = async () => {
   const isWin = Deno.build.os === 'windows'
   const command = isWin ? 'ipconfig' : 'ifconfig'
   try {
-    // initialize command
     let ifconfig = await Deno.run({
       cmd: [command],
       stdout: 'piped',
     })
 
-    // handle errors
     const { success } = await ifconfig.status()
     if (!success) {
       throw new Error(`Subprocess ${command} failed to run`)
     }
 
-    // get output
     const raw = await ifconfig.output()
     const text = decode(raw)
 
-    // get ip
     if (isWin) {
       const addrs = text.match(new RegExp('ipv4.+([0-9]+.){3}[0-9]+', 'gi'))
       let temp = addrs
@@ -53,6 +49,6 @@ export const getNetworkAddr = async () => {
       )
     }
   } catch (err) {
-    console.log(error(err.message))
+    error(err.message)
   }
 }
