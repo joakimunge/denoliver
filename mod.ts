@@ -7,7 +7,7 @@ import {
   serveTLS,
   ServerRequest,
 } from 'https://deno.land/std/http/server.ts'
-import { posix } from 'https://deno.land/std/path/mod.ts'
+import { resolve, relative, join } from 'https://deno.land/std/path/mod.ts'
 
 /* Denoliver utils */
 import {
@@ -117,10 +117,10 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
   try {
     const path = joinPath(root, req.url)
-    const dirUrl = `/${posix.relative(root, path)}`
+    const dirUrl = `/${relative(root, path)}`
     const entries: DirEntry[] = []
     for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
-      const filePath = posix.join(dirUrl, '/', entry.name)
+      const filePath = join(dirUrl, '/', entry.name)
       entries.push({ ...entry, url: decodeURIComponent(filePath) })
     }
     await req.respond({
@@ -256,7 +256,8 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.before
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.before}`)
+        var path = resolve(`${root}/${args.before}`)
+        if (Deno.build.os == 'windows') path = 'file://'.concat(path)
         const interceptors = await import(path)
         before = interceptors.default
       } catch (err) {
@@ -270,7 +271,8 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.after
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.after}`)
+        var path = resolve(`${root}/${args.after}`)
+        if (Deno.build.os == 'windows') path = 'file://'.concat(path)
         const interceptors = await import(path)
         after = interceptors.default
       } catch (err) {
