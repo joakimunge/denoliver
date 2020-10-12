@@ -5,7 +5,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        deno: ['v1.2.x', 'v1.x.x', 'nightly']
+        deno: ['v1.0.x', 'v1.x.x', 'nightly']
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
