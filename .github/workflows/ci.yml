@@ -9,8 +9,8 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2.3.3
-      - uses: denolib/setup-deno@v2.2.0
+      - uses: actions/checkout@master
+      - uses: denolib/setup-deno@master
         with:
           deno-version: ${{ matrix.deno }}
       - run: deno --version
