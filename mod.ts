@@ -257,7 +257,7 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
     } else {
       try {
         const path = (Deno.build.os === 'windows' ? 'file://' : '').concat(
-          resolve(`${root}/${args.after}`)
+          resolve(`${root}/${args.before}`)
         )
         const interceptors = await import(path)
         before = interceptors.default
