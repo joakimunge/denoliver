@@ -256,8 +256,9 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.before
     } else {
       try {
-        var path = resolve(`${root}/${args.before}`)
-        if (Deno.build.os == 'windows') path = 'file://'.concat(path)
+        const path = (Deno.build.os === 'windows' ? 'file://' : '').concat(
+          resolve(`${root}/${args.after}`)
+        )
         const interceptors = await import(path)
         before = interceptors.default
       } catch (err) {
@@ -271,8 +272,9 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.after
     } else {
       try {
-        var path = resolve(`${root}/${args.after}`)
-        if (Deno.build.os == 'windows') path = 'file://'.concat(path)
+        const path = (Deno.build.os === 'windows' ? 'file://' : '').concat(
+          resolve(`${root}/${args.after}`)
+        )
         const interceptors = await import(path)
         after = interceptors.default
       } catch (err) {
