@@ -7,7 +7,7 @@ import {
   serveTLS,
   ServerRequest,
 } from 'https://deno.land/std/http/server.ts'
-import { posix } from 'https://deno.land/std/path/mod.ts'
+import { resolve, relative, join } from 'https://deno.land/std/path/mod.ts'
 
 /* Denoliver utils */
 import {
@@ -115,19 +115,23 @@ const handleRouteRequest = async (req: ServerRequest): Promise<void> => {
 }
 
 const handleDirRequest = async (req: ServerRequest): Promise<void> => {
-  const path = joinPath(root, req.url)
-  const dirUrl = `/${posix.relative(root, path)}`
-  const entries: DirEntry[] = []
-  for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
-    const filePath = posix.join(dirUrl, '/', entry.name)
-    entries.push({ ...entry, url: decodeURIComponent(filePath) })
+  try {
+    const path = joinPath(root, req.url)
+    const dirUrl = `/${relative(root, path)}`
+    const entries: DirEntry[] = []
+    for await (const entry of Deno.readDir(path.replace(/\/$/, ''))) {
+      const filePath = join(dirUrl, '/', entry.name)
+      entries.push({ ...entry, url: decodeURIComponent(filePath) })
+    }
+    await req.respond({
+      status: 200,
+      body: encode(dirTemplate(entries, dirUrl)),
+      headers: setHeaders(cors),
+    })
+  } catch (err) {
+    !silent && debug ? console.error(err) : error(err.message)
+    handleNotFound(req)
   }
-
-  await req.respond({
-    status: 200,
-    body: encode(dirTemplate(entries, dirUrl)),
-    headers: setHeaders(cors),
-  })
 }
 
 const handleWs = async (req: ServerRequest): Promise<void> => {
@@ -252,7 +256,9 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.before
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.before}`)
+        const path = (Deno.build.os === 'windows' ? 'file://' : '').concat(
+          resolve(`${root}/${args.before}`)
+        )
         const interceptors = await import(path)
         before = interceptors.default
       } catch (err) {
@@ -266,7 +272,9 @@ const setGlobals = async (args: DenoliverOptions): Promise<void> => {
       before = args.after
     } else {
       try {
-        const path = posix.resolve(`${root}/${args.after}`)
+        const path = (Deno.build.os === 'windows' ? 'file://' : '').concat(
+          resolve(`${root}/${args.after}`)
+        )
         const interceptors = await import(path)
         after = interceptors.default
       } catch (err) {
