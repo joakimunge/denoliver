@@ -1,4 +1,4 @@
-import { assertEquals, assert } from 'https://deno.land/std/testing/asserts.ts'
+import { assertEquals, assert } from './deps.ts'
 import {
   isRoute,
   contentType,

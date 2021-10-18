@@ -1,10 +1,13 @@
-import { assert, assertEquals } from 'https://deno.land/std/testing/asserts.ts'
-import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts'
-import { BufReader } from 'https://deno.land/std/io/bufio.ts'
-import { Args } from 'https://deno.land/std/flags/mod.ts'
+import {
+  assert,
+  assertEquals,
+  TextProtoReader,
+  BufReader,
+  Args,
+  Server,
+} from './deps.ts'
 import { appendReloadScript, encode, decode } from './utils/utils.ts'
 import serve from './mod.ts'
-import { Server } from 'https://deno.land/std/http/server.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
 let port = 6060
@@ -78,9 +81,7 @@ test('handleRouteRequest should return index.html', async (): Promise<void> => {
   }
 })
 
-test('handleDirRequest should return a directory if list is true', async (): Promise<
-  void
-> => {
+test('handleDirRequest should return a directory if list is true', async (): Promise<void> => {
   await setup({ _: ['./demo'], l: true })
   try {
     const res = await fetch(`http://localhost:${port}/src`)
@@ -107,9 +108,7 @@ test('index.html should contain reload script', async (): Promise<void> => {
   }
 })
 
-test('given no reload option index.html should not contain reload script', async (): Promise<
-  void
-> => {
+test('given no reload option index.html should not contain reload script', async (): Promise<void> => {
   await setup({ _: ['./demo'], n: true })
   try {
     const res = await fetch(`http://localhost:${port}`)
@@ -135,9 +134,7 @@ test('/any/other/route should return index.html', async (): Promise<void> => {
   }
 })
 
-test('/style.css should return style.css from ./demo', async (): Promise<
-  void
-> => {
+test('/style.css should return style.css from ./demo', async (): Promise<void> => {
   await setup()
   try {
     const res = await fetch(`http://localhost:${port}/style.css`)
@@ -153,9 +150,7 @@ test('/style.css should return style.css from ./demo', async (): Promise<
   }
 })
 
-test('given a path to file not found should return 404', async (): Promise<
-  void
-> => {
+test('given a path to file not found should return 404', async (): Promise<void> => {
   await setup()
   try {
     const res = await fetch(`http://localhost:${port}/does-not-exist.js`)
@@ -168,9 +163,7 @@ test('given a path to file not found should return 404', async (): Promise<
   }
 })
 
-test('when cors enabled response should have access control header', async (): Promise<
-  void
-> => {
+test('when cors enabled response should have access control header', async (): Promise<void> => {
   await setup({ _: ['./demo'], c: true })
   try {
     const res = await fetch(`http://localhost:${port}`)

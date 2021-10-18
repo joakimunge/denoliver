@@ -1,13 +1,13 @@
 const { args } = Deno
-import { parse } from 'https://deno.land/std/flags/mod.ts'
-import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts'
 import {
+  parse,
+  acceptWebSocket,
   serve,
   Server,
   serveTLS,
   ServerRequest,
-} from 'https://deno.land/std/http/server.ts'
-import { posix } from 'https://deno.land/std/path/mod.ts'
+  posix,
+} from './deps.ts'
 
 /* Denoliver utils */
 import {
@@ -57,7 +57,7 @@ type DenoliverOptions = {
 type Interceptor = (r: ServerRequest) => ServerRequest
 
 /* Initialize file watcher */
-let watcher: AsyncIterableIterator<Deno.FsEvent>
+let watcher: Deno.FsWatcher
 
 /* Server */
 let server: Server

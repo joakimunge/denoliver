@@ -1,10 +1,7 @@
 {
-                                "name": "denoliver",
-                                "description": "A simple, dependency free static file server for Deno with possibly the worst name ever.",
-                                "homepage": "https://github.com/joakimunge/denoliver",
-                                "files": [
-                                  "./**/*.ts",
-                                  "README.md"
-                                ],
-                                "entry": "./mod.ts"
-                              }
+  "name": "denoliver",
+  "description": "A simple, dependency free static file server for Deno with possibly the worst name ever.",
+  "homepage": "https://github.com/joakimunge/denoliver",
+  "files": ["./**/*.ts", "README.md"],
+  "entry": "./mod.ts"
+}
