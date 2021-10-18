@@ -1,6 +1,6 @@
-import { extname } from 'https://deno.land/std/path/mod.ts'
-import { ServerRequest } from 'https://deno.land/std/http/server.ts'
-import { blue, bold, green, red } from 'https://deno.land/std/fmt/colors.ts'
+import { extname } from '../deps.ts'
+import { ServerRequest } from '../deps.ts'
+import { blue, bold, green, red } from '../deps.ts'
 import mimes from '../mimes.ts'
 import notFound from '../404.ts'
 
@@ -100,15 +100,17 @@ export const appendReloadScript = (
 
 export const inject404 = (filename: string) => notFound(filename)
 
-export const pipe = <R>(...fns: Array<(a: R) => R>) => (arg: R) => {
-  if (fns.length === 0) {
-    throw new Error('Expected at least one argument function')
+export const pipe =
+  <R>(...fns: Array<(a: R) => R>) =>
+  (arg: R) => {
+    if (fns.length === 0) {
+      throw new Error('Expected at least one argument function')
+    }
+    return fns.reduce(
+      (prevFn, nextFn) => prevFn.then(nextFn),
+      Promise.resolve(arg)
+    )
   }
-  return fns.reduce(
-    (prevFn, nextFn) => prevFn.then(nextFn),
-    Promise.resolve(arg)
-  )
-}
 
 /* Print utils */
 export const printRequest = (req: ServerRequest): void => {

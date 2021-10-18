@@ -1,13 +1,8 @@
 const { args } = Deno
-import { parse } from 'https://deno.land/std/flags/mod.ts'
-import { acceptWebSocket } from 'https://deno.land/std/ws/mod.ts'
-import {
-  serve,
-  Server,
-  serveTLS,
-  ServerRequest,
-} from 'https://deno.land/std/http/server.ts'
-import { posix } from 'https://deno.land/std/path/mod.ts'
+import { parse } from './deps.ts'
+import { acceptWebSocket } from './deps.ts'
+import { serve, Server, serveTLS, ServerRequest } from './deps.ts'
+import { posix } from './deps.ts'
 
 /* Denoliver utils */
 import {
