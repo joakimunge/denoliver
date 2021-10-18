@@ -1,6 +1,4 @@
-import { extname } from '../deps.ts'
-import { ServerRequest } from '../deps.ts'
-import { blue, bold, green, red } from '../deps.ts'
+import { extname, ServerRequest, blue, bold, green, red } from '../deps.ts'
 import mimes from '../mimes.ts'
 import notFound from '../404.ts'
 

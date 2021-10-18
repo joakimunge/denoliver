@@ -1,10 +1,13 @@
-import { assert, assertEquals } from './deps.ts'
-import { TextProtoReader } from './deps.ts'
-import { BufReader } from './deps.ts'
-import { Args } from './deps.ts'
+import {
+  assert,
+  assertEquals,
+  TextProtoReader,
+  BufReader,
+  Args,
+  Server,
+} from './deps.ts'
 import { appendReloadScript, encode, decode } from './utils/utils.ts'
 import serve from './mod.ts'
-import { Server } from './deps.ts'
 
 let server: Deno.Process<Deno.RunOptions & { stdout: 'piped' }>
 let port = 6060
