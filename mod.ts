@@ -57,7 +57,7 @@ type DenoliverOptions = {
 type Interceptor = (r: ServerRequest) => ServerRequest
 
 /* Initialize file watcher */
-let watcher: AsyncIterableIterator<Deno.FsEvent>
+let watcher: Deno.FsWatcher
 
 /* Server */
 let server: Server
