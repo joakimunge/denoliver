@@ -45,8 +45,7 @@ async function setup(args?: Args): Promise<void> {
   if (!server.stdout) throw Error
   assert(server.stdout != null)
   const r = new TextProtoReader(new BufReader(server.stdout))
-  const s = await r.readLine()
-  assert(s !== null)
+  await r.readLine()
 }
 
 async function tearDown(): Promise<void> {
@@ -219,9 +218,9 @@ test({
     const config = `
   {
     "root": "./demo",
-    "disableReload": true,
+    "disableReload": false,
     "silent": false,
-    "port": 5000,
+    "port": 6060,
     "debug": false,
     "secure": false,
     "cors": true,
@@ -233,12 +232,12 @@ test({
     await setup()
 
     try {
-      const res = await fetch(`http://localhost:5000`)
-      const file = await res.text()
+      const res = await fetch(`http://localhost:6060`)
+      const text = await res.text()
       assertEquals(res.status, 200)
       assert(res.headers.has('content-type'))
       assert(res.headers.has('access-control-allow-origin'))
-      assert(file.includes(`<div id="denoliver">`))
+      assert(text.includes(`<div id="denoliver">`))
     } finally {
       await Deno.remove(`./demo/denoliver.json`)
       await tearDown()
