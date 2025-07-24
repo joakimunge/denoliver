@@ -23,7 +23,7 @@ export const getNetworkAddr = async () => {
       throw new Error('Could not resolve your local adress.')
     }
 
-    await Deno.close(ifconfig.rid)
+    await Deno.close?.(ifconfig.rid) ?? ifconfig.close()
 
     return (
       addrs &&
@@ -32,7 +32,7 @@ export const getNetworkAddr = async () => {
         ?.split('inet ')[1]
     )
   } catch (err) {
-    ifconfig && (await Deno.close(ifconfig.rid))
+    ifconfig && (await Deno.close?.(ifconfig.rid) ?? ifconfig.close())
     console.log(err.message)
   }
 }
