@@ -36,10 +36,10 @@
 
 ```bash
 # Install from JSR (recommended)
-deno install --allow-net --allow-read --allow-write --allow-run jsr:@joakimunge/denoliver@3.0.0 --name denoliver
+deno install -g --allow-net --allow-read --allow-write --allow-run jsr:@joakimunge/denoliver@3.0.0 --name denoliver
 
 # Or install from deno.land/x
-deno install --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver@3.0.0/mod.ts --name denoliver
+deno install -g --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver@3.0.0/mod.ts --name denoliver
 ```
 
 ### Usage
