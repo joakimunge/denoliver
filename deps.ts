@@ -1,15 +1,15 @@
-export { assert } from 'https://deno.land/std@0.224.0/assert/assert.ts'
-export { assertEquals } from 'https://deno.land/std@0.224.0/assert/assert_equals.ts'
-export { parseArgs as parse } from 'https://deno.land/std@0.224.0/cli/parse_args.ts'
+export { assert } from '@std/assert/assert'
+export { assertEquals } from '@std/assert/equals'
+export { parseArgs as parse } from '@std/cli/parse-args'
 export {
   blue,
   bold,
   green,
   red,
-} from 'https://deno.land/std@0.224.0/fmt/colors.ts'
-export { extname } from 'https://deno.land/std@0.224.0/path/extname.ts'
-export * as posix from 'https://deno.land/std@0.224.0/path/posix/mod.ts'
+} from '@std/fmt/colors'
+export { extname } from '@std/path/extname'
+export * as posix from '@std/path/posix'
 
 export const serve = Deno.serve
 
-export type { Args } from 'https://deno.land/std@0.224.0/cli/parse_args.ts'
+export type { Args } from '@std/cli/parse-args'
