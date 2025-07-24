@@ -1,6 +1,6 @@
-import { extname, ServerRequest, blue, bold, green, red } from '../deps.ts'
-import mimes from '../mimes.ts'
 import notFound from '../404.ts'
+import { blue, bold, extname, green, red } from '../deps.ts'
+import mimes from '../mimes.ts'
 
 /* CLI Utils */
 
@@ -24,8 +24,11 @@ export const isValidArg = (arg: string): boolean => {
   return args.includes(arg)
 }
 
-export const isValidPort = (port: any): boolean =>
-  port >= 1 && port <= 65535 && Number.isInteger(port)
+export const isValidPort = (port: unknown): boolean =>
+  typeof port === 'number' &&
+  port >= 1 &&
+  port <= 65535 &&
+  Number.isInteger(port)
 
 export const prompt = async (body = '') => {
   const buf = new Uint8Array(1024)
@@ -63,7 +66,7 @@ export const readFile = async (filename: string) => {
   return decoder.decode(await Deno.readFile(filename))
 }
 
-export const isWebSocket = (req: ServerRequest): boolean =>
+export const isWebSocket = (req: Request): boolean =>
   req.headers.get('upgrade') === 'websocket'
 
 export const setHeaders = (cors: boolean, path?: string): Headers => {
@@ -90,7 +93,7 @@ export const appendReloadScript = (
     console.log('Socket connection open. Listening for events.');
   };
   socket.onmessage = (msg) => {
-    if (msg.data === 'reload') location.reload(true);
+    if (msg.data === 'reload') location.reload();
   };
 </script>`
   )
@@ -100,19 +103,17 @@ export const inject404 = (filename: string) => notFound(filename)
 
 export const pipe =
   <R>(...fns: Array<(a: R) => R>) =>
-  (arg: R) => {
+  (arg: R): R => {
     if (fns.length === 0) {
       throw new Error('Expected at least one argument function')
     }
-    return fns.reduce(
-      (prevFn, nextFn) => prevFn.then(nextFn),
-      Promise.resolve(arg)
-    )
+    return fns.reduce((acc, fn) => fn(acc), arg)
   }
 
 /* Print utils */
-export const printRequest = (req: ServerRequest): void => {
-  console.log(`${bold(green(req.method))} ${req.url}`)
+export const printRequest = (req: Request): void => {
+  const url = new URL(req.url)
+  console.log(`${bold(green(req.method))} ${url.pathname}`)
 }
 
 export const printHelp = (): void => {
@@ -161,7 +162,7 @@ export const printStart = (
   ${
     !networkAddr
       ? `${blue(
-          'Denoliver needs permission to spawn a subprocess to access your local network address. If you wish, install it again with the --allow-run flag'
+          'Denoliver needs system permissions to access your local network address. If you wish, install it again with the --allow-sys flag'
         )}`
       : ''
   }
