@@ -1,7 +1,12 @@
 {
   "name": "denoliver",
-  "description": "A simple, dependency free static file server for Deno with possibly the worst name ever.",
+  "description": "A small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.",
   "homepage": "https://github.com/joakimunge/denoliver",
-  "files": ["./**/*.ts", "README.md"],
-  "entry": "./mod.ts"
+  "files": [
+    "./**/*.ts", 
+    "README.md",
+    "LICENSE"
+  ],
+  "entry": "./mod.ts",
+  "version": "3.0.0"
 }

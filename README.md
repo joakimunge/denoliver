@@ -13,9 +13,11 @@
 
 **Denoliver** is a small, zero config dev & static file server with live reloading written in TypeScript for Deno intended for prototyping and Single Page Applications.
 
+> **Version 3.0+**: Now available on both [JSR](https://jsr.io/@joakimunge/denoliver) and [deno.land/x](https://deno.land/x/denoliver) with modern Deno APIs and improved TypeScript support!
+
 ## Prerequisites
 
-### To run this you need to have [Deno](https://deno.land/) 1.19 or later installed.
+* [Deno 2.0+](https://deno.land/manual/getting_started/installation)
 
 ## Key Features
 
@@ -28,27 +30,35 @@
 - Boilerplating for rapid prototyping.
 - Injectable HTTP request interceptors. (TS & JS)
 
-## Getting started
+## Getting Started
 
-Install as a Deno executable.
+### Installation
 
-> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read`, `--allow-write`, and `--allow-sys` flags to make sure Denoliver can serve your directory and display network addresses.
+```bash
+# Install from JSR (recommended)
+deno install --allow-net --allow-read --allow-write --allow-run jsr:@joakimunge/denoliver@3.0.0 --name denoliver
 
+# Or install from deno.land/x
+deno install --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver@3.0.0/mod.ts --name denoliver
 ```
-$ deno install --global --allow-net --allow-read --allow-write --allow-sys https://deno.land/x/denoliver/mod.ts
-```
+
+### Usage
+
+Running denoliver without any arguments will start a server on port `3000` and serve files from the current working directory.
+
+> **Note**: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read`, `--allow-write`, and `--allow-run` flags to make sure Denoliver can serve your directory and display network addresses.
 
 or if you're not happy with the name:
 
-```
-$ deno install --global -n whateverNameYouWant --allow-net --allow-read --allow-write --allow-sys https://deno.land/x/denoliver/mod.ts
+```bash
+$ deno install --global -n whateverNameYouWant --allow-net --allow-read --allow-write --allow-run jsr:@joakimunge/denoliver@3.0.0
 ```
 
 ## Why do I need the `--allow-sys` flag?
 
 _You don't need it! You can still use Denoliver as normal without this flag._
 
-Denoliver uses `Deno.networkInterfaces()` (available since Deno 1.19) to display your local network address. This API requires the `--allow-sys` permission. If you don't provide this flag, Denoliver will still work but won't be able to show the network address in the startup message.
+Denoliver uses `Deno.networkInterfaces()` to display your local network address. This API requires the `--allow-sys` permission. If you don't provide this flag, Denoliver will still work but won't be able to show the network address in the startup message.
 
 ## Running
 
@@ -106,7 +116,7 @@ Interceptors can be a single function, for example:
 ```typescript
 // before.ts
 
-export default (req: ServerRequest) => {
+export default (req: Request) => {
   req.headers.set('Authorization', 'Bearer some-token')
   return req
 }
@@ -115,12 +125,12 @@ export default (req: ServerRequest) => {
 or an array of functions:
 
 ```typescript
-const setHeaders = (req: ServerRequest) => {
+const setHeaders = (req: Request) => {
   req.headers.set('Authorization', 'Bearer some-token')
   return req
 }
 
-const logRequestUrl = (req: ServerRequest) => {
+const logRequestUrl = (req: Request) => {
   console.log(req.url)
   return req
 }
@@ -133,7 +143,7 @@ of course this can also be used when using Denoliver as a module:
 ```typescript
 const server = denoliver({
   port: 6060,
-  before: (req: ServerRequest) => {
+  before: (req: Request) => {
     req.headers.set('Authorization', 'Bearer some-token')
     return req
   },
@@ -165,12 +175,16 @@ If you want, you can place a configuration file called `denoliver.json` in the f
 ## API
 
 Denoliver can also be used as a module in any Deno project.
-This exposes an instance of [Deno.Server](https://deno.land/std/http/server.ts#L125).
+This exposes an instance of [Deno.Server](https://docs.deno.com/api/deno/~/Deno.serve).
 
 The main function accepts the same config object as specified in the config file above.
 
 ```typescript
-import denoliver from 'https://deno.land/x/denoliver/mod.ts'
+// Import from JSR (recommended)
+import denoliver from 'jsr:@joakimunge/denoliver@3.0.0'
+
+// Or import from deno.land/x
+import denoliver from 'https://deno.land/x/denoliver@3.0.0/mod.ts'
 
 const server = denoliver({ port: 6060, cors: true })
 
