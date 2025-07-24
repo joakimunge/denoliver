@@ -8,8 +8,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
-      - uses: denolib/setup-deno@master
+      - uses: denoland/setup-deno@v2
         with:
-          deno-version: 1.19.0
+          deno-version: v2.x
       - run: |
           deno test -A
