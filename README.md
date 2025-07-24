@@ -15,7 +15,7 @@
 
 ## Prerequisites
 
-### To run this you need to have [Deno](https://deno.land/) 1.0 or later installed.
+### To run this you need to have [Deno](https://deno.land/) 1.19 or later installed.
 
 ## Key Features
 
@@ -32,25 +32,23 @@
 
 Install as a Deno executable.
 
-> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read` and `--allow-write` flags to make sure Denoliver can serve your directory.
+> NOTE: Deno is a secure runtime by default. You need to include the `--allow-net`, `--allow-read`, `--allow-write`, and `--allow-sys` flags to make sure Denoliver can serve your directory and display network addresses.
 
 ```
-$ deno install --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver/mod.ts
+$ deno install --global --allow-net --allow-read --allow-write --allow-sys https://deno.land/x/denoliver/mod.ts
 ```
 
 or if you're not happy with the name:
 
 ```
-$ deno install -n whateverNameYouWant --allow-net --allow-read --allow-write --allow-run https://deno.land/x/denoliver/mod.ts
+$ deno install --global -n whateverNameYouWant --allow-net --allow-read --allow-write --allow-sys https://deno.land/x/denoliver/mod.ts
 ```
 
-## Why do I need the `--allow-run` flag?
+## Why do I need the `--allow-sys` flag?
 
 _You don't need it! You can still use Denoliver as normal without this flag._
 
-Currently Deno does not provide a way to access local network interfaces, so to do this you need to allow denoliver to spawn the subprocess `ipconfig` and fetch the address from there. When [this](https://github.com/denoland/deno/issues/3802) implementation gets finished, this module will probably be deprecated.
-
-This code is published for you to use here: https://github.com/joakimunge/deno-local-ip/
+Denoliver uses `Deno.networkInterfaces()` (available since Deno 1.19) to display your local network address. This API requires the `--allow-sys` permission. If you don't provide this flag, Denoliver will still work but won't be able to show the network address in the startup message.
 
 ## Running
 

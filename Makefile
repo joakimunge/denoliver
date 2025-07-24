@@ -1,5 +1,5 @@
 install:
-	deno install -f --allow-read --allow-net --allow-run --allow-write mod.ts
+	deno install --global -f --allow-read --allow-net --allow-sys --allow-write mod.ts
 
 test:
-	deno test --allow-read --allow-net --allow-run --allow-write
+	deno test --allow-read --allow-net --allow-sys --allow-write --allow-run
